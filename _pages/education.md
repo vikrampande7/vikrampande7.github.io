@@ -58,7 +58,9 @@ Discriminative and generative modeling and MLE algorithm, Linear and Logistic re
 
 
 ## Pune University
-![Pune University](pu.jpg)
+![Pune University](../images/pu.jpg)
+
+
 **Bachelor of Engineering in Electronics and Telecommunication**
 @ [Pune University](http://www.unipune.ac.in/default.htm), Pune, India
 
@@ -74,6 +76,8 @@ Discriminative and generative modeling and MLE algorithm, Linear and Logistic re
 
 ## Fergusson College
 ![Fergusson College](fergusson.jpg)
+
+
 **Higher Secondary Education**
 @ [Fergusson College](https://www.fergusson.edu/), Pune, India
 
