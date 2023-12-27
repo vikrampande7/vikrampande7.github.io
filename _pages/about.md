@@ -1,6 +1,6 @@
 ---
 permalink: /
-title: "VIKRAM PANDE"
+title: "Vikram Pande"
 excerpt: "About me"
 author_profile: true
 redirect_from:
