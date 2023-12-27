@@ -14,6 +14,7 @@ showTableOfContents: true
 
 
 ## North Carolina State University
+![NCSU](ncsu.jpg)
 **Master of Science in Electrical Engineering**
 @ [NC State University](https://www.ncsu.edu/), Raleigh, NC
 
@@ -57,6 +58,7 @@ Discriminative and generative modeling and MLE algorithm, Linear and Logistic re
 
 
 ## Pune University
+![Pune University](pu.jpg)
 **Bachelor of Engineering in Electronics and Telecommunication**
 @ [Pune University](http://www.unipune.ac.in/default.htm), Pune, India
 
@@ -71,6 +73,7 @@ Discriminative and generative modeling and MLE algorithm, Linear and Logistic re
 ##### Computer Networks
 
 ## Fergusson College
+![Fergusson College](fergusson.jpg)
 **Higher Secondary Education**
 @ [Fergusson College](https://www.fergusson.edu/), Pune, India
 

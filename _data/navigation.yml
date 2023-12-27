@@ -3,6 +3,9 @@ main:
   - title: "Portfolio"
     url: /portfolio/
 
+  - title: Experience"
+    url: /publications/
+
   - title: "Education"
     url: /education/
 
@@ -11,9 +14,6 @@ main:
 
   - title: "CV"
     url: /cv/
-
-  - title: "Publications"
-    url: /publications/
 
   - title: "Teaching"
     url: /teaching/

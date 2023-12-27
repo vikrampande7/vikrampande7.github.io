@@ -18,4 +18,4 @@ I am interested in Research and my research interests include the fusion of Visi
 Apart from this, I enjoy watching movies and anime. I love to watch different sports and I am a fitness enthusiast.
 
 You can find my blogs [here](https://medium.com/@vikrampande783).
-![NCSU](ncsu.jpg)
+
