@@ -3,13 +3,13 @@ main:
   - title: "Portfolio"
     url: /portfolio/
 
-  - title: Experience"
+  - title: Experience
     url: /experience/
 
   - title: "Education"
     url: /education/
 
-  - title: "Blog Posts"
+  - title: "Blog"
     url: /year-archive/
 
   - title: "List"
