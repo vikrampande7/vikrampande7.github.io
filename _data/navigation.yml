@@ -13,7 +13,7 @@ main:
     url: /publications/
 
   - title: "Talks"
-    url: /talks/
+    url: /_pages/about.md
 
   - title: "Teaching"
     url: /teaching/
