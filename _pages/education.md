@@ -7,6 +7,10 @@ redirect_from:
   - /education
 showTableOfContents: true
 ---
+## Table of Contents
+- [North Carolina State University](#north-carolina-state-university)
+- [Pune University](#pune-university)
+- [Fergusson College](#fergusson-college)
 
 
 ## North Carolina State University
