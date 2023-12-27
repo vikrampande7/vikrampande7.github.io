@@ -19,7 +19,7 @@ showTableOfContents: true
 
 *August 2022 - May 2024*
 
-***GPA: 3.92/4.00***
+***GPA: 3.93/4.00***
 
 ### Relevant Coursework
 #### ECE 514 - Random Processes
