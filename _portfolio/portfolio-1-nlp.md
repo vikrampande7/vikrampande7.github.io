@@ -10,6 +10,7 @@ tags:
 ---
 
 ![humor](/images/humordetection.png){: .align-center width="300px"}
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/vikrampande7/LOLgarithm){:target="_blank"}
 
 - Humor is a fascinating and puzzling area of study in the field of computers understanding human language.
 - ColBERT Dataset: The ColBERT dataset has 200,000 statements with humor labels and is accessible on Kaggle for model training and evaluation.For testing, r/jokes, a subreddit was scraped.
@@ -32,5 +33,4 @@ tags:
 - These features were then pass to colBERT model separately and together to assess the performance.
 - It was observed that combining all three features increased the prediction accuracy.
 
-![colbert](/images/colbert.png){: .align-left width="400px"}
-[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/vikrampande7/LOLgarithm){:target="_blank"}
+![colbert](/images/colbert.png)

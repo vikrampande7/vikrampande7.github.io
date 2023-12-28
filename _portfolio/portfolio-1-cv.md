@@ -10,6 +10,7 @@ tags:
 ---
 
 ![deepfakeelon](/images/deepfakeelon.jpg){: .align-center width="400px"}
+[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/vikrampande7/deepfake-detection){:target="_blank"}
 
 - The proliferation of AI-generated fake images, or DeepFakes, has become a serious issue as they
 can spread misinformation and abusive content rapidly through modern media platforms. To
@@ -20,7 +21,7 @@ address this problem, a deepfake detection model with explainable AI was impleme
 - Incorporated explainable AI (XAI) techniques to gain insights into the interpretability of the model hence employed LIME and GradCam algorithms to visualize and analyze how the model interprets the results.
 
 ![deepfake](/images/deepfake-poster.png)
-[![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=GitHub)](https://github.com/vikrampande7/deepfake-detection){:target="_blank"}
+
 
 
 
