@@ -15,5 +15,7 @@ tags:
 
 ![vitt](/images/vit.png){: .align-right width="300px"}
 ![densnet](/images/densenet.png){: .align-left width="300px"}
+
+
 ## [*Read on Medium*](https://medium.com/@vikrampande783/cnns-and-vision-transformers-analysis-and-comparison-bf7b109718ba)
 
