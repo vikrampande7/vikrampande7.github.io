@@ -30,6 +30,7 @@ tags:
     - Alliteration: quantifies the count and maximum length of alliteration chains within a sentence.
     - Rhyme: measures the count and maximum length of rhyme chains.
 - The Contexutal features were directly obtained by BERT embeddings.
+- Used Decision Trees and SHAP to derive important features.
 - These features were then pass to colBERT model separately and together to assess the performance.
 - It was observed that combining all three features increased the prediction accuracy.
 
