@@ -8,6 +8,9 @@ redirect_from:
   - /about.html
 showTableOfContents: true
 ---
+![me](/images/me.jpg){: .align-center width="300px"}
+![mee](/images/me.jpg){: .align-right width="300px"}
+
 
 Hey there!👋 I'm Vikram, from Pune, India. I am a master's student at [NC State University](https://www.ncsu.edu/) in the [Electrical and Computer Engineering](https://ece.ncsu.edu/) Department with a focus in Machine Learning.
 
