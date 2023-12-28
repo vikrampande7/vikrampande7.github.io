@@ -18,4 +18,4 @@ tags:
 - Performed Non-Max-Suppression.
 - Drawn circles around maxima points.
 
-![blob-naruto](/images/blobs_naruto.png)
+![blob-naruto](/images/blobs_naruto.png){: .align-center width="400px" height="500px"}
