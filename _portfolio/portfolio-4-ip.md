@@ -19,6 +19,13 @@ tags:
 - Fourth part focuses on getting a texture map for each plane using warping.
 - At last, the visualisation of 3D object with Blender is done.
 
-![3d_1_](/images/3d_original.png){: .align-left width="300px"}
+![3d_1_](/images/3d_original.png){: .align-center width="300px"}
+*Image acquisition*
+
 ![3d_2_](/images/3d_annotated.png){: .align-center width="300px"}
-![3d_3_](/images/3d_rendered_3D_box.png){: .align-right width="300px"}
+*Image annotation*
+
+![3d_3_](/images/3d_rendered_3D_box.png){: .align-center width="300px"}
+*3D Reconstructed Image Visualization*
+
+*Please refer to the report in GitHub repository for more details*
