@@ -84,10 +84,10 @@ author:
   avatar           : "medp.jpg"
   bio              : "Graduate student at NC State University focusing on Machine Learning, Computer Vision and NLP"
   location         : "Raleigh, NC"
-  employer         :
+  employer         : "North Carolina State University"
   pubmed           :
   googlescholar    :
-  email            :
+  email            : "vspande@ncsu.edu"
   researchgate     :  # example: "https://www.researchgate.net/profile/yourprofile"
   uri              :
   bitbucket        :
