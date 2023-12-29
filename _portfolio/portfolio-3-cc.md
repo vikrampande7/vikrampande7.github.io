@@ -33,6 +33,6 @@ The project unfolds across several sections, with a focus on developing a Video 
 The project extensively references AWS pillar documentation for comprehensive insights into cloud architecture.
 
 
-![building-blocks](/images/block.drawio.png){: .align-center width="300px"}
+![building-blocks](/images/block.drawio.png)
 
 [The detailed Report can be found here](/images/Report.pdf)
