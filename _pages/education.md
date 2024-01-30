@@ -40,7 +40,7 @@ Statistical Learning, Confidence Interval and Hypothesis testing, load profile a
 
 <details>
 <summary>ECE 542 - Neural Networks and Deep Learning</summary>
-ML introduction, Probability Theory, Model Selection and Evaluation, Vector Calculus and Optimization, Forward and Backward propagation, Optimization Schemes, Loss and Regularization, Universal Approximation Theorem, Convolutional Neural Networks(CNNs), Recurrent Neural Networks (RNNs), Audio Classification, Dropout and Batch Normalization, Adversarial Learning, Auto Encoders, Generative Adversarial Networks (GANs), VAEs, WGANs, Transformers, Bayesian Neural Networks
+ML introduction, Probability Theory, Model Selection and Evaluation, Vector Calculus and Optimization, Forward and Backward propagation, Optimization Schemes, Loss and Regularization, Universal Approximation Theorem, Convolutional Neural Networks(CNNs), Recurrent Neural Networks (RNNs), Audio Classification, Dropout and Batch Normalization, Adversarial Learning, Auto Encoders, Generative Adversarial Networks (GANs), VAEs, WGANs, Transformers, Bayesian Neural Networks.
 </details>
 
 <details>
@@ -50,12 +50,12 @@ Design of object-oriented systems, using SOLID principles such as the GRASP prin
 
 <details>
 <summary>ECE 791 - Advanced Machine Learning</summary>
-Linear, Non-linear modeling for inference and decision making, Task Learning, Pac-learning, Artificial Neural Networks (ANNs), CNNs, RNNs, LSTMs,  Generalization and Latent Learning: Meta-Learning, AutoEncoders and VAE, Domain Adaptation, Energy Based Learning: Volterra NNs, Generative Models: GANs, Normalizing Flows,  Diffusion Model concept, Bayesian Neural Networks, Attention and Transformers Neural Networks, Graph Neural Networks, Graph Attention Networks
+Linear, Non-linear modeling for inference and decision making, Task Learning, Pac-learning, Artificial Neural Networks (ANNs), CNNs, RNNs, LSTMs,  Generalization and Latent Learning: Meta-Learning, AutoEncoders and VAE, Domain Adaptation, Energy Based Learning: Volterra NNs, Generative Models: GANs, Normalizing Flows,  Diffusion Model concept, Bayesian Neural Networks, Attention and Transformers Neural Networks, Graph Neural Networks, Graph Attention Networks.
 </details>
 
 <details>
 <summary>CSC 547 - Cloud Computing</summary>
-Cloud Computing basics and job roles, Datacenter Fundamentals: Microservice implementations, Tenants, Cloud Computing Analysis: IaaS, SaaS, PaaS, FaaS, private-public-multicloud, Cloud Architecture requirements, principles and practices: BRs, TRs, Cloud migration, Load balancing, networking, autoscaling, trade-offs, Cloud automation: automation and orchestration, tools such as Kubernetes, OpenShift, Ansible, nontrivial, lab-based project
+Cloud Computing basics and job roles, Datacenter Fundamentals: Microservice implementations, Tenants, Cloud Computing Analysis: IaaS, SaaS, PaaS, FaaS, private-public-multicloud, Cloud Architecture requirements, principles and practices: BRs, TRs, Cloud migration, Load balancing, networking, autoscaling, trade-offs, Cloud automation: automation and orchestration, tools such as Kubernetes, OpenShift, Ansible, nontrivial, lab-based project.
 </details>
 
 <details>
@@ -65,18 +65,23 @@ Foundations of NLP, NLP paradigms and techniques, Linguistics and AI, regular ex
 
 <details>
 <summary>CSC 591 - Machine Learning for User Adaptive Systems</summary>
-Machine Learning introduction, Frequent Pattern Mining, Temporal Sequential Mining, Temporal Pattern Mining, Deep Learning, CNNs, RNNs, LSTMs, GRUs, Dimensionality Reduction, Expectation Maximization (EM), Gaussian Mixture Models (GMMs), GANs, Semi-Supervised Learning, Hidden Markov Models (HMMs), Markov Decision Processes (MDPs), Decision theory, Reinforcement Learning, Deep Reinforcement Learning, Recommendation Systems
+Machine Learning introduction, Frequent Pattern Mining, Temporal Sequential Mining, Temporal Pattern Mining, Deep Learning, CNNs, RNNs, LSTMs, GRUs, Dimensionality Reduction, Expectation Maximization (EM), Gaussian Mixture Models (GMMs), GANs, Semi-Supervised Learning, Hidden Markov Models (HMMs), Markov Decision Processes (MDPs), Decision theory, Reinforcement Learning, Deep Reinforcement Learning, Recommendation Systems.
 </details>
 
 <details>
 <summary>ECE 759 - Pattern Recognition (AU)</summary>
-Statistical Machine Learning, Linear and Non-linear classification, Random variables, Bayes Decision Theory Classification, Discriminant Functions, ML and MAP parameter estimation, Mixture Models, Bayesian Inference, Parzen windows, kNN density estimation and classification, Perceptron algorithm, MMSE and least squares, SVMs, XOR problem, gradient search, backpropagation, Decision trees, Boosting, feature selection, LDA, Structural Risk Minimization, BIC, Feature generation: PCA, SVC, ICA, template matching, Bellman's principle, Clustering: Proximity measures, sequential, hierarchical, Mixture Decomposition
+Statistical Machine Learning, Linear and Non-linear classification, Random variables, Bayes Decision Theory Classification, Discriminant Functions, ML and MAP parameter estimation, Mixture Models, Bayesian Inference, Parzen windows, kNN density estimation and classification, Perceptron algorithm, MMSE and least squares, SVMs, XOR problem, gradient search, backpropagation, Decision trees, Boosting, feature selection, LDA, Structural Risk Minimization, BIC, Feature generation: PCA, SVC, ICA, template matching, Bellman's principle, Clustering: Proximity measures, sequential, hierarchical, Mixture Decomposition.
 </details>
 
 <details>
 <summary>ECE 763 - Computer Vision</summary>
-Discriminative and generative modeling and MLE algorithm, Linear and Logistic regression, Mixture models, Kernels and the kernel trick, Factor analysis, Gaussian Process, classification models, Graphical Models, Models for chains and trees - inference: MAP, dynamic programming, MRF-MAP-CRF inference, Temporal Models: Kalman Filter, Particle filtering, Vision Language Models, Image Grammar Models, Probabilistic Models, Deep Learning + Monte Carlo Tree search, Visualizing and understanding CNNs, Computer Vision tools and packages
+Discriminative and generative modeling and MLE algorithm, Linear and Logistic regression, Mixture models, Kernels and the kernel trick, Factor analysis, Gaussian Process, classification models, Graphical Models, Models for chains and trees - inference: MAP, dynamic programming, MRF-MAP-CRF inference, Temporal Models: Kalman Filter, Particle filtering, Vision Language Models, Image Grammar Models, Probabilistic Models, Deep Learning + Monte Carlo Tree search, Visualizing and understanding CNNs, Computer Vision tools and packages.
 
+</details>
+
+<details>
+<summary>ECE 765 - Probabilistic Graphical Models (AU)</summary>
+Techniques for machine learning using probabilistic graphical models (PGM). Emphasis on Bayesian and Markov networks, and Probabilistic deep neural networks with applications to signal processing and computer vision. Bayesian Inference, Directed Graphical Models, Undirected Graphical Models, Inference algorithms, Message Passing, Variational Inference, Markov Chain Monte Carlo, Graph Neural Networks, Bayesian Neural Networks, Gaussian Processes,RBMs, Deep Belief Networks, Variational AutoEncoders, Diffusion Models, Bayesian Optimization.
 </details>
 
 ## Pune University

@@ -19,15 +19,16 @@ showTableOfContents: true
 
 *September 2023 - Present*
 
-Working on a Protien Sequence Classification model using deep learning. Part of [NC State Plant Science Initiative](https://cals.ncsu.edu/psi/)
+- Working on a Protien Sequence Classification model using deep learning. Part of [NC State Plant Science Initiative](https://cals.ncsu.edu/psi/)
 [paper]
+- Research and assistance in writing project proposals.
 
 ## Syngenta
 **Data Science Intern @ [Syngenta](https://www.syngenta.com/en), Research Triangle Park, Durham, NC**
 
 *June 2023 - December 2023*
 
-I am currently working as a Data Science Intern at Syngenta. I am working in the Applied Genetics team and assisting Applied Scientists and Data Scientists in their respective Machine Learning, database management, and data visualization tasks.
+Worked as a Data Science Intern at Syngenta. Team: Applied Genetics team and assisted Applied Scientists and Data Scientists in their respective Machine Learning, database management, and data visualization tasks.
 
 ## Data and Visualization Services
 **Data Science Consultant @ [Data and Visualization Services](https://www.lib.ncsu.edu/services/data-visualization), NC State University**
