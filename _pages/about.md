@@ -9,7 +9,7 @@ redirect_from:
 showTableOfContents: true
 ---
 
-Hey there!👋 I'm Vikram, from Pune, India. I am a master's student at [NC State University](https://www.ncsu.edu/) in the [Electrical and Computer Engineering](https://ece.ncsu.edu/) Department with a focus in Machine Learning.
+Hey there!👋 I'm Vikram, from Pune, India. I am a master's student at [NC State University](https://www.ncsu.edu/) in the [Electrical and Computer Engineering](https://ece.ncsu.edu/) Department with a focus in Machine Learning. I currently work as a Machine Learning Engineer at Dentsply Sirona.
 
 ![mee](/images/me.jpg){: .align-right width="300px"}
 

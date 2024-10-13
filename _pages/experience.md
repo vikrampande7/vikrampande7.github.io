@@ -8,16 +8,28 @@ redirect_from:
 showTableOfContents: true
 ---
 ## Table of Contents
+- [Machine Learning Engineer](#dentsply-sirona)
 - [Research Assistant - Sozzani Lab](#sozzani-lab)
 - [Data Science Intern - Syngenta](#syngenta)
 - [Data Science Consultant - Data & Visualization Sevices](#data-and-visualization-services)
 - [Graduate Student Researcher - ARoS Lab](#aros-lab)
 - [Associate Software Engineer - Accenture](#accenture)
 
+## Dentsply Sirona
+**Machine Learning Engineer @ [Detnsply Sirona](https://www.dentsplysirona.com/en-us), Charlotte, NC**
+
+*June 24 - Present*
+
+- Azure Cloud and Databricks
+- ML in production
+- MLOps end-to-end on Databricks and Azure
+- LLMs and RAG
+- Recommendation Systems
+
 ## Sozzani Lab
 **Research Assistant @ [Sozzani Labs](https://qcdb.ncsu.edu/subgroup/sozzani-lab/), NC State University**
 
-*September 2023 - Present*
+*September 2023 - May 2024*
 
 - Working on a Protien Sequence Classification model using deep learning. Part of [NC State Plant Science Initiative](https://cals.ncsu.edu/psi/)
 [paper]
