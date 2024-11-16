@@ -82,9 +82,9 @@ analytics:
 author:
   name             : "Vikram Pande"
   avatar           : "pp1.png"
-  bio              : "Graduate student at NC State University focusing on Machine Learning, Computer Vision and NLP"
-  location         : "Raleigh, NC"
-  employer         : "North Carolina State University"
+  bio              : "Machine Learning Engineer"
+  location         : "North Carolina, United States"
+  employer         : 
   pubmed           :
   googlescholar    :
   email            : "vspande@ncsu.edu"

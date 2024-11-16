@@ -12,7 +12,7 @@ main:
   - title: "Blog"
     url: /year-archive/
 
-  - title: "List"
-    url: /list/
+  # - title: "List"
+  #   url: /list/
 
 
