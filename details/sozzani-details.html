@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sozzani Lab - Experience Details</title>
+    <base target="_self">
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+    
+    <meta name="author" content="Vikram Pande" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:500,100,300" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/metadata/me_pixar_face.png">
+
+    <style>
+      details {
+        margin-top: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px 15px;
+        background-color: #fefefe;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.1em;
+        outline: none;
+      }
+
+      .back-button {
+        margin-top: 30px;
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #007BFF;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+      }
+
+      .back-button:hover {
+        background-color: #0056b3;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.8s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {opacity: 0;}
+        to {opacity: 1;}
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <div class="site-info">
+            <h1 class="site-name"><a href="/" target="_self">Vikram Pande</a></h1>
+          </div>
+
+          <nav>
+            <a href="/about" target="_self">About</a>
+            <a href="/research" target="_self">Projects</a>
+            <a href="/blog" target="_self">Blog</a>
+            <a href="/metadata/Vikram Resume 2025.pdf">CV</a>
+            <a href="/misc/">Misc</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container fade-in">
+      <article class="page">
+      <h1 style="color: #007BFF;">Sozzani Lab - Research Assistant (Deep Learning)</h1>
+      <p><strong>Location:</strong> Raleigh, NC</p>
+      <p><strong>Duration:</strong> Sept 2023 - May 2024</p>
+
+        <details open>
+        <summary>Protein Sequence Classification with Deep Learning</summary>
+        <ul>
+            <li>Developed a deep learning architecture combining CNN, Attention, and LSTM to classify protein families and annotate protein sequences.</li>
+            <li>Enabled functional inference of signaling networks, facilitating understanding of gene regulation and protein interactions.</li>
+            <li>Achieved an F1 score of 96% on the classification task using High Performance Computing (HPC) for large-scale sequence training.</li>
+            <li>Research accepted for publication in the <i><a href="https://www.nature.com/articles/s41586-024-07707-3" target="_blank">Nature Journal</a></i>.</li>
+        </ul>
+        </details>
+
+        <details open>
+        <summary>Clustering of Arabidopsis Classes with Variational AutoEncoders</summary>
+        <ul>
+            <li>Designed and implemented a dimensionality reduction and clustering pipeline using AutoEncoders combined with K-Means.</li>
+            <li>Identified distinct subtypes of Arabidopsis plant phenotypes for deeper understanding of genetic variations.</li>
+            <li>Built and trained models using PyTorch and tracked experiments and hyperparameters with MLflow.</li>
+        </ul>
+        </details>
+
+        <details open>
+        <summary>Graph Convolution Networks for GRN Inference</summary>
+        <ul>
+            <li>Proposed a novel Graph Convolutional Network (GCN) with attention mechanisms to infer Gene Regulatory Networks (GRNs).</li>
+            <li>Used protein interaction graphs to identify functional regions and cell type changes in Arabidopsis plants.</li>
+            <li>Enabled spatial understanding of protein roles across different developmental stages in plant biology.</li>
+        </ul>
+        </details>
+<!-- 
+        <h3 style="margin-top:40px;">Techstack</h3>
+        <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:center; margin-top:10px;">
+          <img src="/metadata/Databricks_Logo.png" alt="Databricks" width="100" height="100" title="Databricks">
+          <img src="/metadata/pytorch.png" alt="PyTorch" width="100" height="100" title="PyTorch">
+          <img src="/metadata/azure.png" alt="Azure" width="100" height="100" title="Microsoft Azure"> 
+        </div> -->
+
+        <a class="back-button" href="/#experience">← Back to Main Page</a>
+
+
+      </article>
+    </div>
+  </body>
+</html>

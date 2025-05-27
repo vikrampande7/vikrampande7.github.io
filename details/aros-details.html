@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ARoS Lab - Experience Details</title>
+    <base target="_self">
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+    
+    <meta name="author" content="Vikram Pande" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,300italic,400italic|Raleway:500,100,300" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/metadata/me_pixar_face.png">
+
+    <style>
+      details {
+        margin-top: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px 15px;
+        background-color: #fefefe;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.1em;
+        outline: none;
+      }
+
+      .back-button {
+        margin-top: 30px;
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #007BFF;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+      }
+
+      .back-button:hover {
+        background-color: #0056b3;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.8s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {opacity: 0;}
+        to {opacity: 1;}
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <div class="site-info">
+            <h1 class="site-name"><a href="/" target="_self">Vikram Pande</a></h1>
+          </div>
+
+          <nav>
+            <a href="/about" target="_self">About</a>
+            <a href="/research" target="_self">Projects</a>
+            <a href="/blog" target="_self">Blog</a>
+            <a href="/metadata/Vikram Resume 2025.pdf">CV</a>
+            <a href="/misc/">Misc</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container fade-in">
+      <article class="page">
+      <h1 style="color: #007BFF;">Active Robotic Sensing Lab - Research Assistant (Computer Vision)</h1>
+      <p><strong>Location:</strong> Raleigh, NC</p>
+      <p><strong>Duration:</strong> Jan 2023 - Sept 2023</p>
+
+        <details open>
+        <summary>Semantic Segmentation & Object Detection on Turfgrass Imagery</summary>
+        <ul>
+            <li>Conducted applied computer vision research to segment damaged vs. healthy St. Augustine turfgrass under drought stress, supporting high-throughput phenotyping in agricultural research.</li>
+            <li>Implemented HSV color space thresholding and mean clustering to segment drought-affected regions in aerial images, achieving an average Structural Similarity Index (SSIM) of 72%.</li>
+            <li>Applied YOLOv8 for object detection to localize turf damage areas, achieving a mean Average Precision (mAP) of 89.8% on a custom-labeled dataset.</li>
+            <li>Explored a range of data augmentation strategies (flip, scale, color jitter, etc.) to improve model generalization under diverse field conditions.</li>
+            <li>Utilized transfer learning with the ViT-16 (Vision Transformer) model for semantic segmentation, enabling effective feature extraction from limited labeled data.</li>
+            <li>Contributed to improving drought resistance screening workflows for plant scientists by providing accurate segmentation tools for field-level analysis.</li>
+        </ul>
+        </details>
+
+        <a class="back-button" href="/#experience">← Back to Main Page</a>
+
+
+      </article>
+    </div>
+  </body>
+</html>
