@@ -1,0 +1,410 @@
+Color Palette & Variables
+:root {
+    --accent-orange: #e67e22;       /* The primary orange color */
+    --accent-light: #fff5eb;        /* Soft orange for backgrounds/highlights */
+    --text-main: #2c3e50;          /* Dark slate for readability */
+    --text-light: #7f8c8d;         /* Grey for metadata */
+    --border-color: #eee;
+}
+
+/* Global Reset Tweaks */
+body {
+    margin: 0;
+    background-color: #ffffff;
+}
+
+/* Header/Logo Styling */
+.blog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 10%;
+    border-bottom: 1px solid var(--border-color);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.logo {
+    font-size: 1.2rem;
+    letter-spacing: -0.5px;
+}
+
+.logo strong {
+    color: var(--accent-orange); /* Vikram in Orange */
+}
+
+.blog-nav a {
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.blog-nav a:hover {
+    color: var(--accent-orange);
+}
+
+/* Main Layout Container */
+.blog-container {
+    display: flex;
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 0 20px;
+    font-family: 'Inter', 'Helvetica', sans-serif;
+}
+
+/* Sidebar Navigation */
+.blog-sidebar {
+    width: 220px;
+    position: sticky;
+    top: 40px;
+    height: fit-content;
+}
+/* --- Cool Sidebar Styling --- */
+
+.blog-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Base link style */
+.blog-sidebar li a {
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    display: block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+/* Hover effect for all links */
+.blog-sidebar li a:hover {
+    color: var(--accent-orange);
+    background-color: var(--accent-light);
+    padding-left: 18px; /* Slides slightly to the right */
+}
+
+/* Submenu logic: Hidden by default */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    padding-left: 20px; /* Indent subsections */
+    transition: all 0.4s ease-in-out;
+    border-left: 1px solid var(--border-color);
+    margin-left: 10px;
+}
+
+/* Expand submenu on hover of the parent li */
+.has-submenu:hover .submenu {
+    max-height: 200px; /* Large enough to fit content */
+    opacity: 1;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+/* Specific styling for subsection links */
+.submenu li a {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    color: #95a5a6;
+}
+
+/* Active state marker (optional: add via JS later, but here is the CSS) */
+.blog-sidebar li a.active {
+    color: var(--accent-orange);
+    font-weight: 600;
+    background: var(--accent-light);
+}
+
+/* Content Area */
+.blog-content {
+    flex: 1;
+    padding-left: 80px;
+    line-height: 1.8;
+    color: var(--text-main);
+}
+
+/* Typography & Headings */
+.blog-content h1 {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.blog-content h2 {
+    color: var(--accent-orange); /* Orange Sub-headers */
+    margin-top: 50px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    font-weight: 600;
+    font-size: 1.6rem;
+}
+
+.blog-content h3 {
+    font-size: 1.2rem;
+    color: var(--text-main);
+    border-left: 4px solid var(--accent-orange); /* Orange accent bar */
+    padding-left: 15px;
+    margin-top: 30px;
+}
+
+.metadata { 
+    color: var(--text-light); 
+    font-size: 0.9rem; 
+    margin: 0; 
+}
+
+.tags { 
+    color: #bdc3c7; 
+    font-size: 0.85rem; 
+    margin-bottom: 40px; 
+    font-style: italic;
+}
+
+/* Mathematical/Technical Callouts */
+.note-box {
+    background-color: var(--accent-light);
+    border-left: 5px solid var(--accent-orange);
+    padding: 20px;
+    margin: 30px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    margin: 30px 0;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+th {
+    text-align: left;
+    color: var(--accent-orange);
+    border-bottom: 2px solid var(--accent-orange);
+    padding: 12px;
+}
+
+td {
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 850px) {
+    .blog-container {
+        flex-direction: column;
+        margin-top: 20px;
+    }
+    .blog-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        margin-bottom: 40px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 20px;
+    }
+    .blog-content {
+        padding-left: 0;
+    }
+    .blog-content h1 {
+        font-size: 1.8rem;
+    }
+}
+
+
+/* Color Palette & Variables - GREEN THEME */
+:root {
+    --accent-green: #27ae60;        /* Main Emerald Green */
+    --accent-light: #f0f9f4;        /* Soft green for backgrounds/highlights */
+    --text-main: #2c3e50;           /* Dark slate for readability */
+    --text-light: #7f8c8d;          /* Grey for metadata */
+    --border-color: #eee;
+}
+
+/* Global Reset */
+body {
+    margin: 0;
+    background-color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Header/Logo Styling */
+.blog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 10%;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+    font-size: 1.2rem;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+}
+
+.logo strong {
+    color: var(--accent-green); /* Vikram in Green */
+}
+
+.blog-nav a {
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.blog-nav a:hover {
+    color: var(--accent-green);
+}
+
+/* Main Layout Container */
+.blog-container {
+    display: flex;
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+/* --- Cool Sidebar Styling --- */
+.blog-sidebar {
+    width: 240px;
+    position: sticky;
+    top: 40px;
+    height: fit-content;
+}
+
+.blog-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.blog-sidebar li a {
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    display: block;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.blog-sidebar li a:hover {
+    color: var(--accent-green);
+    background-color: var(--accent-light);
+    padding-left: 18px;
+}
+
+/* Submenu Logic */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    padding-left: 15px;
+    transition: all 0.4s ease-in-out;
+    border-left: 1px solid var(--border-color);
+    margin-left: 10px;
+}
+
+.has-submenu:hover .submenu {
+    max-height: 200px; /* Expand on hover */
+    opacity: 1;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.submenu li a {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    color: #95a5a6;
+}
+
+/* Content Area */
+.blog-content {
+    flex: 1;
+    padding-left: 60px;
+    line-height: 1.8;
+    color: var(--text-main);
+}
+
+/* Typography & Headings */
+.blog-content h1 {
+    font-size: 2.6rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.blog-content h2 {
+    color: var(--accent-green); /* Green Sub-headers */
+    margin-top: 50px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    font-weight: 600;
+    font-size: 1.7rem;
+}
+
+.blog-content h3 {
+    font-size: 1.25rem;
+    color: var(--text-main);
+    border-left: 4px solid var(--accent-green); /* Green accent bar */
+    padding-left: 15px;
+    margin-top: 30px;
+}
+
+.metadata { 
+    color: var(--text-light); 
+    font-size: 0.9rem; 
+    margin: 0; 
+}
+
+.tags { 
+    color: #bdc3c7; 
+    font-size: 0.85rem; 
+    margin-bottom: 40px; 
+}
+
+/* Notes & Tables */
+.note-box {
+    background-color: var(--accent-light);
+    border-left: 5px solid var(--accent-green);
+    padding: 20px;
+    margin: 30px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+table {
+    width: 100%;
+    margin: 30px 0;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+th {
+    text-align: left;
+    color: var(--accent-green);
+    border-bottom: 2px solid var(--accent-green);
+    padding: 12px;
+}
+
+td {
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px;
+}
+
+/* Responsiveness */
+@media (max-width: 850px) {
+    .blog-container { flex-direction: column; }
+    .blog-sidebar { width: 100%; position: relative; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+    .blog-content { padding-left: 0; }
+}

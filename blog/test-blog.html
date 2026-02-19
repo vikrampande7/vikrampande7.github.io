@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision Language Models (Test Blog Template) | Vikram Pande</title>
+    <link rel="stylesheet" href="/blog/blog-post-style.css">
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <header class="blog-header">
+        <div class="logo"><strong>Vikram</strong> Pande</div>
+        <nav class="blog-nav">
+            <a href="/blog" target="_self">← back to blog</a>
+        </nav>
+    </header>
+
+    <div class="blog-container">
+        <aside class="blog-sidebar">
+            <ul>
+                <li><a href="#intro">Vision Language Models</a></li>
+                <li><a href="#terminology">Terminology</a></li>
+                
+                <li class="has-submenu">
+                    <a href="#encoders">Vision Encoders</a>
+                    <ul class="submenu">
+                        <li><a href="#vit">ViT Backbones</a></li>
+                        <li><a href="#projection">Projection Layers</a></li>
+                    </ul>
+                </li>
+
+                <li class="has-submenu">
+                    <a href="#math">The Objective Function</a>
+                    <ul class="submenu">
+                        <li><a href="#infonce">InfoNCE Loss</a></li>
+                        <li><a href="#alignment">Feature Alignment</a></li>
+                    </ul>
+                </li>
+
+                <li><a href="#open-vlms">Open VLMs</a></li>
+                <li><a href="#video">Video Modalities</a></li>
+            </ul>
+        </aside>
+
+        <main class="blog-content">
+            <h1 id="intro">Vision Language Models</h1>
+            <p class="metadata">Created in August 14, 2025</p>
+            <div class="tags">📅 2025 · #computer-vision #deep-learning #multimodal</div>
+
+            <article>
+                <p>In the evolving landscape of AI, the distinction between "seeing" and "reading" is vanishing. Vision Language Models (VLMs) bridge this gap by mapping visual features into the same semantic space as text embeddings.</p>
+
+                <h2 id="terminology">Terminology</h2>
+                <p>Before diving into architectures, we must distinguish between different flavors of multimodal systems:</p>
+                <ul>
+                    <li><strong>VLM:</strong> Specifically refers to models that use a vision encoder (like CLIP) to feed tokens into a Language Model.</li>
+                    <li><strong>MLLM:</strong> Multimodal Large Language Models that can handle Interleaved data (images mixed with text).</li>
+                </ul>
+
+                <h2 id="encoders">Vision Encoders & Projection</h2>
+                <p>Modern VLMs typically utilize a pre-trained <strong>Vision Transformer (ViT)</strong>. However, the dimensions of visual tokens often don't match the LLM's hidden dimension. This requires a <em>projection layer</em>.</p>
+                
+                <h3 id="vit">ViT Backbones</h3>
+                <p>We typically use ViT-L/14 variants for the best trade-off between speed and accuracy.</p>
+                
+                <h3 id="projection">Projection Layers</h3>
+                <p>The projector can be a simple Linear layer or a C-Abstractor for better feature compression.</p>
+
+                <div style="background: #f4f4f4; border: 1px dashed #ccc; padding: 40px; text-align: center; margin: 20px 0;">
+                    <p style="margin:0; font-weight: bold;"></p>
+                </div>
+
+                <h2 id="math">The Contrastive Objective</h2>
+                <p>Most VLMs are grounded in contrastive learning. The goal is to maximize the cosine similarity between an image embedding $v$ and its corresponding text embedding $l$.</p>
+                
+                <p>The loss function often used is the <strong>InfoNCE loss</strong>. For a batch of $N$ image-text pairs, the loss for the $i$-th pair is defined as:</p>
+                
+                $$L_i = -\log \frac{\exp(\text{sim}(v_i, l_i) / \tau)}{\sum_{j=1}^N \exp(\text{sim}(v_i, l_j) / \tau)}$$
+
+                <p>Where $\text{sim}(u, w) = \frac{u \cdot w}{\|u\| \|w\|}$ is the cosine similarity and $\tau$ is a learnable temperature parameter.</p>
+
+                <h3 id="infonce">InfoNCE Loss</h3>
+                <p>This ensures that positive pairs are pulled together while negative samples are pushed away in the embedding space.</p>
+
+                <h2 id="open-vlms">Open VLMs</h2>
+                <p>The open-source community has made massive strides. Models like <strong>PaliGemma</strong> and <strong>LLaVA</strong> have democratized access to high-performance multimodal reasoning.</p>
+                
+                <table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+                    <tr style="background: #eee; text-align: left;">
+                        <th style="padding: 10px;">Model</th>
+                        <th>Architecture</th>
+                        <th>Release Year</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px;">LLaVA 1.5</td>
+                        <td>Vicuna + CLIP</td>
+                        <td>2023</td>
+                    </tr>
+                    <tr style="background: #fafafa;">
+                        <td style="padding: 10px;">PaliGemma</td>
+                        <td>SigLIP + Gemma</td>
+                        <td>2024</td>
+                    </tr>
+                </table>
+
+            <h2 id="video">Video Modalities</h2>
+            <h3>Temporal Aggregation</h3>
+            <p>For video, we don't just process one frame. We stack frames $F_1, F_2, ..., F_n$ and apply a temporal pooling layer to capture motion features.</p>
+
+            <div style="border-left: 4px solid #e67e22; background: #fff5eb; padding: 15px; margin: 20px 0;">
+                <strong>Note:</strong> Video LLMs require significantly higher compute due to the $N \times \text{tokens}$ complexity.
+            </div>
+            </article>
+        </main>
+    </div>
+</body>
+</html>
