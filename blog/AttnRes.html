@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision Language Models (Test Blog Template) | Vikram Pande</title>
+    <link rel="stylesheet" href="/blog/blog-post-style.css">
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });">
+    </script>
+</head>
+<body>
+
+    <header class="blog-header">
+        <div class="logo"><strong>Vikram</strong> Pande</div>
+        <nav class="blog-nav">
+            <a href="/blog" target="_self">← back to blog</a>
+        </nav>
+    </header>
+
+    <div class="blog-container">
+        <aside class="blog-sidebar">
+        <ul>
+            <li><a href="#abstract">Abstract</a></li>
+
+            <li class="has-submenu">
+                <a href="#background">1. Background</a>
+                <ul class="submenu">
+                    <li><a href="#transformer-2017">1.1. Transformer Architecture</a></li>
+                    <li><a href="#why-residual">1.2. Why Residuals Matter</a></li>
+                </ul>
+            </li>
+
+            <li class="has-submenu">
+                <a href="#problem">2. The Problem</a>
+                <ul class="submenu">
+                    <li><a href="#prenorm-failure">2.1. Three Failure Modes</a></li>
+                    <li><a href="#depth-sequence-duality">2.2. Depth–Sequence Duality</a></li>
+                </ul>
+            </li>
+
+            <li class="has-submenu">
+                <a href="#attnres">3. Attention Residuals</a>
+                <ul class="submenu">
+                    <li><a href="#duality">3.1. Depth–Time Duality</a></li>
+                    <li><a href="#full-attnres">3.2. Full Attention Residuals</a></li>
+                    <li><a href="#block-attnres">3.3. Block Attention Residuals</a></li>
+                </ul>
+            </li>
+
+            <li class="has-submenu">
+                <a href="#infrastructure">4. Infrastructure Design</a>
+                <ul class="submenu">
+                    <li><a href="#training">4.1. Training</a></li>
+                    <li><a href="#inference">4.2. Inference</a></li>
+                    <li><a href="#io-cost">4.3. Memory Access Cost</a></li>
+                </ul>
+            </li>
+
+            <li class="has-submenu">
+                <a href="#experiments">5. Experiments</a>
+                <ul class="submenu">
+                    <li><a href="#architecture">5.1. Architecture Details</a></li>
+                    <li><a href="#scaling-laws">5.2. Scaling Laws</a></li>
+                    <li><a href="#main-results">5.3. Main Results</a></li>
+                    <li><a href="#training-dynamics">5.4. Training Dynamics</a></li>
+                    <li><a href="#downstream">5.5. Downstream Benchmarks</a></li>
+                    <li><a href="#ablations">5.6. Ablation Study</a></li>
+                </ul>
+            </li>
+
+            <li class="has-submenu">
+                <a href="#discussions">6. Discussions</a>
+                <ul class="submenu">
+                    <li><a href="#seq-depth-duality">6.1. Sequence–Depth Duality</a></li>
+                    <li><a href="#structured-matrices">6.2. Structured Matrices</a></li>
+                </ul>
+            </li>
+
+            <li><a href="#conclusion">7. Conclusion</a></li>
+            <li><a href="#references">References</a></li>
+            <li><a href="#cite">Cite This Article</a></li>
+        </ul>
+    </aside>
+
+        <main class="blog-content">
+            <h1 id="intro">Attention Residuals: Fixing a Decade-Old Bottleneck in Deep Networks</h1>
+            <p class="metadata">Created in March 21, 2026</p>
+            <div class="tags">📅 2025 · #transformers #deep-learning #residual-connection #attention</div>
+
+            <article>
+                <h2 id="abstract">Abstract</h2>
+                <p>
+                    The humble residual connection introduced by He et al. 
+                    <a href="https://arxiv.org/abs/1512.03385">[He et al., 2016]</a> for image recognition and 
+                    canonised by the Transformer <a href="https://arxiv.org/abs/1706.03762">[Vaswani et al., 2017]</a> 
+                    has remained architecturally frozen for nearly a decade. Every modern LLM 
+                    from GPT-4 to LLaMA to DeepSeek uses the same equation: $$h_l = h_{l-1} + f_{l-1}(h_{l-1})$$  
+                    In March 2026, the Kimi team released <em>Attention Residuals</em> 
+                    <a href="https://arxiv.org/abs/2603.15031">[Kimi Team, 2026]</a>, proposing a principled 
+                    replacement: replace the fixed additive accumulation with <strong>learned, 
+                    input-dependent, softmax attention over all preceding layer outputs</strong>. 
+                    The analogy is elegant, the Transformer solved the sequential bottleneck 
+                    of RNNs; AttnRes applies the same cure to the <em>depth</em> dimension. 
+                    This article traces the story from the original Transformer's residual 
+                    connections, through the identified pathology, to the proposed fix, its 
+                    math, its implementation, and its empirical results.
+                </p>
+                
+                <!-- Section 1 -->
+                <h2 id="background">1. Background: The Transformer and Its Residuals</h2>
+                <!-- Section 1.1 -->
+                <h3 id="transformer-2017">1.1. The Transformer Architecture (2017)</h3>
+
+                <p>
+                    The 2017 paper <em>"Attention Is All You Need"</em> 
+                    <a href="https://arxiv.org/abs/1706.03762">[Vaswani et al., 2017]</a> was a watershed moment 
+                    in NLP. By dispensing entirely with recurrence and convolutions and relying 
+                    solely on self-attention, Vaswani et al. achieved state-of-the-art BLEU scores 
+                    on WMT 2014 English-German (28.4 BLEU) and English-French (41.8 BLEU) while 
+                    being dramatically more parallelisable than RNN-based models.
+                </p>
+                <p>
+                    The core insight was to replace the sequential hidden state of RNNs where 
+                    every token $h_t$ depends on $h_{t-1}$ preventing parallelism with direct 
+                    pairwise attention between all positions:
+                </p>
+
+                $$\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V \tag{1}$$
+
+                <p>
+                    Multi-Head Attention extends this by projecting queries, keys, and values into 
+                    $h$ subspaces, computing attention in each, and concatenating:
+                </p>
+
+                $$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h)\, W^O $$
+                $$\quad \text{head}_i = \text{Attention}(QW_i^Q,\, KW_i^K,\, VW_i^V) \tag{2}$$
+
+                <p>
+                    The encoder stacks $N{=}6$ such layers, and each sub-layer (attention or FFN) 
+                    is wrapped with a <strong>residual connection</strong> followed by layer 
+                    normalisation:
+                </p>
+
+                $$\text{output} = \text{LayerNorm}(x + \text{Sublayer}(x)) \tag{3}$$
+
+                <!-- Section 1.2 -->
+                <h3 id="why-residual">1.2. Why Residual Connections Matter?</h3>
+
+                <p>
+                    Residual connections, due to He et al. <a href="https://arxiv.org/abs/1512.03385">[He et al., 2016]</a>, 
+                    were introduced for image classification to allow gradients to bypass 
+                    transformations. The update rule is simply:
+                </p>
+
+                $$\mathbf{h}_l = \mathbf{h}_{l-1} + f_{l-1}(\mathbf{h}_{l-1}) \tag{4}$$
+
+                <p>Unrolling this recurrence yields:</p>
+
+                $$\mathbf{h}_L = \mathbf{h}_1 + \sum_{i=1}^{L-1} f_i(\mathbf{h}_i) \tag{5}$$
+
+                <p>The gradient with respect to any intermediate hidden state $\mathbf{h}_l$ is:</p>
+
+                $$\frac{\partial \mathcal{L}}{\partial \mathbf{h}_l} = \frac{\partial \mathcal{L}}{\partial \mathbf{h}_L} \cdot \prod_{j=l}^{L-1} \left( I + \frac{\partial f_j}{\partial \mathbf{h}_j} \right) \tag{6}$$
+
+                <p>
+                    The identity term $I$ is always preserved, providing a direct gradient highway 
+                    from the loss to any layer regardless of depth, the key enabler of training 
+                    networks with hundreds of layers.
+                </p>
+                
+                <figure style="text-align: center;">
+                <img src="vanilla-transformer.png" alt="Transformer Architecture Diagram" style="display: block; margin: 0 auto;">
+                <figcaption>
+                    Figure 1: Transformer Block: Add and Norm is Residual Connection with LayerNorm. 
+                    These are the skip connections that add the layer's input directly to its output 
+                    before normalisation. Each residual carries unit weight.
+                </figcaption>
+                </figure>
+
+                
+                <!-- Section 2 -->
+                <h2 id="problem">2. The Problem: Limitations of Fixed Residual Connections</h2>
+
+                <div style="border-left: 4px solid #e67e22; background: #fff5eb; padding: 15px; margin: 20px 0;">
+                    <strong>The core tension:</strong> Residual connections were designed for gradient 
+                    flow, but they also define <em>how information aggregates across depth</em> and 
+                    this aggregation has remained uniformly weighted and input-independent for a decade.
+                </div>
+
+                <!-- Section 2.1 -->
+                <h3 id="prenorm-failure">2.1. The Three Failure Modes of PreNorm Residuals</h3>
+
+                <p>
+                    Modern LLMs universally adopt <strong>PreNorm</strong> 
+                    <a href="https://arxiv.org/abs/2002.04745">[Xiong et al., 2020]</a> (normalise <em>before</em> the 
+                    sublayer, not after), because PostNorm causes gradient vanishing at depth. But 
+                    PreNorm introduces a different problem. The standard update is:
+                </p>
+
+                $$\mathbf{h}_l = \mathbf{h}_{l-1} + f_{l-1}(\text{Norm}(\mathbf{h}_{l-1})) \tag{7}$$
+
+                <p>
+                    Since Norm scales inputs to bounded magnitude but residual accumulation is 
+                    unbounded, the hidden state magnitude grows as $\|\mathbf{h}_l\| = O(L)$. Each 
+                    layer's relative contribution therefore <em>shrinks</em> as depth increases. The 
+                    Kimi team <a href="https://arxiv.org/abs/2603.15031">[Kimi Team, 2026]</a> identify three concrete 
+                    failure modes:
+                </p>
+
+                <ol>
+                    <li>
+                        <p>
+                            <strong>No selective access.</strong> Different layer types (attention vs. 
+                            MLP) receive the same aggregated state, even though they may benefit from 
+                            different weightings of earlier representations.
+                        </p>
+                    </li>
+                    <li>
+                        <p>
+                            <strong>Irreversible loss.</strong> Information lost through aggregation 
+                            cannot be selectively recovered by deeper layers. Empirically, a significant 
+                            fraction of layers can be pruned with minimal performance loss 
+                            <a href="https://arxiv.org/pdf/2403.17887">[Gromov et al., 2025]</a>, which suggests that 
+                            many layers are redundant.
+                        </p>
+                    </li>
+                    <li>
+                        <p>
+                            <strong>Output growth.</strong> Deeper layers must learn ever-larger outputs 
+                            to remain influential over the accumulated residual, which can destabilise 
+                            training and exacerbate magnitude disparity.
+                        </p>
+                    </li>
+                </ol>
+
+                <!-- Section 2.2 -->
+                <h3 id="depth-sequence-duality">2.2. The Depth–Sequence Duality</h3>
+
+                <div style="border: 2px solid #7b5ea7; background: #f3eeff; padding: 15px; margin: 20px 0; border-radius: 6px;">
+                    <strong style="color: #7b5ea7;">The Central Analogy</strong>
+                    <p style="margin-top: 10px; margin-bottom: 0;">
+                        <strong>RNNs over sequences</strong> compress all prior token information into 
+                        a single hidden state $h_t$; <strong>Residuals over depth</strong> compress all 
+                        prior layer information into a single hidden state $\mathbf{h}_l$. The 
+                        Transformer solved the sequence problem with <em>attention</em>. AttnRes solves 
+                        the depth problem with the same mechanism.
+                    </p>
+                </div>
+
+                <p>
+                    Formally, residual connections perform depth-wise <em>linear</em> attention: when 
+                    $\phi(q, k) = q^\top k$ (linear kernel), depth-wise attention collapses to 
+                    $\mathbf{h}_l = \sum_i \phi(w_l, v_i)\, v_i = \sum_i v_i$, the standard additive 
+                    residual. Existing refinements like Highway Networks 
+                    <a href="https://arxiv.org/abs/1505.00387">[Srivastava et al., 2015]</a> and Hyper-Connections 
+                    <a href="https://arxiv.org/abs/2409.19606">[Zhu et al., 2025]</a> all remain within this linear (or 
+                    gated-linear) attention regime. AttnRes completes the transition to 
+                    <em>softmax</em> attention over depth.
+                </p>
+
+                <!-- Table 1 -->
+                <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.95em;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #333;">
+                            <th style="text-align: left; padding: 8px 12px;">Method</th>
+                            <th style="text-align: left; padding: 8px 12px;">Weight type</th>
+                            <th style="text-align: left; padding: 8px 12px;">Source(s)</th>
+                            <th style="text-align: left; padding: 8px 12px;">Limitation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px 12px;">Residual <a href="https://arxiv.org/abs/1512.03385">[He et al., 2016]</a></td>
+                            <td style="padding: 8px 12px;">Fixed = 1</td>
+                            <td style="padding: 8px 12px;">$\mathbf{h}_{l-1}$</td>
+                            <td style="padding: 8px 12px;">No adaptivity</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px 12px;">ReZero <a href="https://arxiv.org/abs/2003.04887">[Bachlechner et al., 2020]</a></td>
+                            <td style="padding: 8px 12px;">Learned scalar</td>
+                            <td style="padding: 8px 12px;">$\mathbf{h}_{l-1}$</td>
+                            <td style="padding: 8px 12px;">Input-independent</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px 12px;">Highway <a href="https://arxiv.org/abs/1505.00387">[Srivastava et al., 2015]</a></td>
+                            <td style="padding: 8px 12px;">Dynamic gate</td>
+                            <td style="padding: 8px 12px;">$\mathbf{h}_{l-1}$</td>
+                            <td style="padding: 8px 12px;">Only prev. state</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px 12px;">DenseFormer <a href="https://arxiv.org/abs/2402.02622">[Pagliardini et al., 2024]</a></td>
+                            <td style="padding: 8px 12px;">Learned scalar</td>
+                            <td style="padding: 8px 12px;">All prior</td>
+                            <td style="padding: 8px 12px;">Input-independent</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px 12px;">mHC <a href="https://arxiv.org/abs/2512.24880">[Xie et al., 2026]</a></td>
+                            <td style="padding: 8px 12px;">Dynamic matrix</td>
+                            <td style="padding: 8px 12px;">$m$ parallel streams</td>
+                            <td style="padding: 8px 12px;">Memory-heavy</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 12px;"><strong>AttnRes</strong></td>
+                            <td style="padding: 8px 12px;">Dynamic softmax</td>
+                            <td style="padding: 8px 12px;"><strong>All individual layer outputs</strong></td>
+                            <td style="padding: 8px 12px;">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="font-size: 0.9em; color: #555;">
+                    <strong>Table 1:</strong> Taxonomy of residual variants. AttnRes is the first to 
+                    combine input-dependent weights with selective access to all individual earlier 
+                    layer outputs.
+                </p>
+
+                <!-- Section 3 -->
+                <h2 id="attnres">3. Attention Residuals: A Unified View of Time and Depth: The Proposed Fix</h2>
+
+                <p>
+                    The limitations of fixed residual connections are reminiscent of similar bottlenecks 
+                    in sequence modeling — suggesting we seek similar solutions for the depth dimension.
+                </p>
+                <figure style="text-align: center;">
+                <img src="AttnRes.png" alt="Transformer Architecture Diagram" style="display: block; margin: 0 auto;">
+                </figure>
+
+                <h3 id="duality">3.1. The Depth–Time Duality</h3>
+
+                <p>
+                    Like RNNs over time, residual connections compress all prior information into a 
+                    single state $\mathbf{h}_l$ over depth. The Transformer improved upon RNNs by 
+                    replacing recurrence with attention, allowing each position to selectively access 
+                    all previous positions with data-dependent weights. AttnRes proposes the same 
+                    methodology for depth:
+                </p>
+
+                $$\mathbf{h}_l = \alpha_{0 \to l} \cdot \mathbf{h}_1 + \sum_{i=1}^{l-1} \alpha_{i \to l} \cdot f_i(\mathbf{h}_i) \tag{8}$$
+
+                <p>
+                    where $\alpha_{i \to l}$ are layer-specific attention weights satisfying 
+                    $\sum_{i=0}^{l-1} \alpha_{i \to l} = 1$. Unlike sequence length (which can reach 
+                    millions of tokens), network depth is typically modest ($L < 1000$), making 
+                    $O(L^2)$ attention over depth computationally feasible.
+                </p>
+
+                <!-- Section 3.2 -->
+                <h3 id="full-attnres">3.2. Full Attention Residuals</h3>
+
+                <p>
+                    The attention weights are computed via a kernel function 
+                    $\phi: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}_{\geq 0}$, adopting 
+                    $\phi(\mathbf{q}, \mathbf{k}) = \exp(\mathbf{q}^\top \text{RMSNorm}(\mathbf{k}))$ 
+                    with softmax normalisation over depth:
+                </p>
+
+                $$\alpha_{i \to l} = \frac{\phi(\mathbf{q}_l,\, \mathbf{k}_i)}{\sum_{j=0}^{l-1} \phi(\mathbf{q}_l,\, \mathbf{k}_j)} \tag{9}$$
+
+                <p>For each layer $l$, the query and key–value pairs are defined as:</p>
+
+                $$\mathbf{q}_l = \mathbf{w}_l, \qquad \mathbf{k}_i = \mathbf{v}_i = \begin{cases} \mathbf{h}_1 & i = 0 \\ f_i(\mathbf{h}_i) & 1 \leq i \leq l-1 \end{cases} \tag{10}$$
+
+                <p>
+                    where $\mathbf{w}_l \in \mathbb{R}^d$ is a layer-specific <strong>learnable 
+                    pseudo-query vector</strong>. The RMSNorm inside $\phi$ prevents layers with 
+                    large-magnitude outputs from dominating the attention weights. The input to layer 
+                    $l$ is then:
+                </p>
+
+                $$\mathbf{h}_l = \sum_{i=0}^{l-1} \alpha_{i \to l} \cdot \mathbf{v}_i \tag{11}$$
+
+                <p>
+                    Full AttnRes requires $O(L^2 d)$ arithmetic and $O(Ld)$ memory to store layer 
+                    outputs. Since depth is far smaller than sequence length, the arithmetic cost is 
+                    modest. However, at scale — where activation recomputation and pipeline parallelism 
+                    are employed — both memory and communication overhead grow as $O(Ld)$, motivating 
+                    the Block variant below.
+                </p>
+
+                <!-- Section 3.3 -->
+                <h3 id="block-attnres">3.3. Block Attention Residuals</h3>
+
+                <p>
+                    Block AttnRes partitions the $L$ layers into $N$ blocks: within each block, layer 
+                    outputs are reduced to a single representation via summation; across blocks, full 
+                    attention is applied over only $N$ block-level representations. This reduces both 
+                    memory and communication from $O(Ld)$ to $O(Nd)$.
+                </p>
+
+                <p>
+                    <strong>Intra-Block Accumulation.</strong> The $L$ layers are divided into $N$ 
+                    blocks of $S = L/N$ layers each. Each block is summarised by summing its layer 
+                    outputs:
+                </p>
+
+                $$\mathbf{b}_n = \sum_{j \in \mathcal{B}_n} f_j(\mathbf{h}_j) \tag{12}$$
+
+                <p>
+                    <strong>Inter-Block Attention.</strong> For the $i$-th layer in block $n$, the 
+                    value matrix attends over all completed block representations, with $\mathbf{b}_0 = 
+                    \mathbf{h}_1$ ensuring the token embedding is always included as a source:
+                </p>
+
+                $$\mathbf{V} = \begin{cases} [\mathbf{b}_0, \mathbf{b}_1, \ldots, \mathbf{b}_{n-1}]^\top & i = 1 \text{ (first layer of block } n\text{)}\\ [\mathbf{b}_0, \mathbf{b}_1, \ldots, \mathbf{b}_{n-1}, \mathbf{b}_n^{i-1}]^\top & i \geq 2 \text{ (subsequent layers)} \end{cases} \tag{13}$$
+
+                <p>
+                    <strong>Efficiency.</strong> Since each layer now attends over $N$ block 
+                    representations rather than $L$ individual outputs, memory reduces from $O(L)$ to 
+                    $O(N)$ and computation from $O(L^2)$ to $O(N^2)$. The block count $N$ interpolates 
+                    between two extremes: $N = L$ recovers Full AttnRes, while $N = 1$ reduces to 
+                    standard residual connections. Empirically, $N \approx 8$ recovers most of the 
+                    benefit across model scales, requiring only eight stored hidden states per token.
+                </p>
+
+                <!-- Code Block -->
+                <div style="background: #1e1e2e; border-radius: 10px; margin: 24px 0; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                <!-- Title Bar -->
+                <div style="background: #181825; padding: 10px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #313244;">
+                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; display: inline-block;"></span>
+                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #febc2e; display: inline-block;"></span>
+                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #28c840; display: inline-block;"></span>
+                    <span style="color: #cdd6f4; font-size: 0.8em; margin-left: 8px; font-family: monospace;">block_attn_res.py</span>
+                </div>
+                <!-- Code Body -->
+                <pre style="margin: 0; padding: 20px; overflow-x: auto; font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace; font-size: 0.88em; line-height: 1.7;"><code><span style="color: #6272a4;"># ── Inter-block attention ─────────────────────────────────────────</span>
+            <span style="color: #cba6f7;">def</span> <span style="color: #89b4fa;">block_attn_res</span>(<span style="color: #cdd6f4;">blocks</span><span style="color: #89dceb;">:</span> <span style="color: #f9e2af;">list</span>[<span style="color: #f9e2af;">Tensor</span>], <span style="color: #cdd6f4;">partial_block</span><span style="color: #89dceb;">:</span> <span style="color: #f9e2af;">Tensor</span>,
+                            <span style="color: #cdd6f4;">proj</span><span style="color: #89dceb;">:</span> <span style="color: #f9e2af;">Linear</span>, <span style="color: #cdd6f4;">norm</span><span style="color: #89dceb;">:</span> <span style="color: #f9e2af;">RMSNorm</span>) <span style="color: #89dceb;">-></span> <span style="color: #f9e2af;">Tensor</span><span style="color: #cdd6f4;">:</span>
+                <span style="color: #a6e3a1;">"""</span>
+                <span style="color: #a6e3a1;">Inter-block attention: attend over block reps + partial sum.</span>
+                <span style="color: #a6e3a1;">blocks:        N tensors of shape [B, T, D] — completed block representations</span>
+                <span style="color: #a6e3a1;">partial_block: [B, T, D]  — intra-block partial sum (b_n^i)</span>
+                <span style="color: #a6e3a1;">"""</span>
+                <span style="color: #cdd6f4;">V</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">torch</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">stack</span>(<span style="color: #cdd6f4;">blocks</span> <span style="color: #89dceb;">+</span> [<span style="color: #cdd6f4;">partial_block</span>])   <span style="color: #6272a4;"># [N+1, B, T, D]</span>
+                <span style="color: #cdd6f4;">K</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">norm</span>(<span style="color: #cdd6f4;">V</span>)
+                <span style="color: #cdd6f4;">logits</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">torch</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">einsum</span>(<span style="color: #a6e3a1;">'d, n b t d -> n b t'</span>, <span style="color: #cdd6f4;">proj</span><span style="color: #89dceb;">.</span><span style="color: #cdd6f4;">weight</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">squeeze</span>(), <span style="color: #cdd6f4;">K</span>)
+                <span style="color: #cdd6f4;">h</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">torch</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">einsum</span>(<span style="color: #a6e3a1;">'n b t, n b t d -> b t d'</span>, <span style="color: #cdd6f4;">logits</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">softmax</span>(<span style="color: #fab387;">0</span>), <span style="color: #cdd6f4;">V</span>)
+                <span style="color: #cba6f7;">return</span> <span style="color: #cdd6f4;">h</span>
+
+
+            <span style="color: #6272a4;"># ── Single-layer forward pass ──────────────────────────────────────</span>
+            <span style="color: #cba6f7;">def</span> <span style="color: #89b4fa;">forward</span>(<span style="color: #cdd6f4;">self</span>, <span style="color: #cdd6f4;">blocks</span><span style="color: #89dceb;">:</span> <span style="color: #f9e2af;">list</span>[<span style="color: #f9e2af;">Tensor</span>],
+                        <span style="color: #cdd6f4;">hidden_states</span><span style="color: #89dceb;">:</span> <span style="color: #f9e2af;">Tensor</span>) <span style="color: #89dceb;">-></span> <span style="color: #f9e2af;">tuple</span>[<span style="color: #f9e2af;">list</span>[<span style="color: #f9e2af;">Tensor</span>], <span style="color: #f9e2af;">Tensor</span>]<span style="color: #cdd6f4;">:</span>
+                <span style="color: #cdd6f4;">partial_block</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">hidden_states</span>
+
+                <span style="color: #6272a4;"># Apply AttnRes before self-attention (blocks include token embedding)</span>
+                <span style="color: #cdd6f4;">h</span> <span style="color: #89dceb;">=</span> <span style="color: #89b4fa;">block_attn_res</span>(<span style="color: #cdd6f4;">blocks</span>, <span style="color: #cdd6f4;">partial_block</span>, <span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #cdd6f4;">attn_res_proj</span>, <span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #cdd6f4;">attn_res_norm</span>)
+
+                <span style="color: #6272a4;"># If block boundary reached, start a new block</span>
+                <span style="color: #6272a4;"># block_size counts ATTN + MLP; each transformer layer has 2</span>
+                <span style="color: #cba6f7;">if</span> <span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #cdd6f4;">layer_number</span> <span style="color: #89dceb;">%</span> (<span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #cdd6f4;">block_size</span> <span style="color: #89dceb;">//</span> <span style="color: #fab387;">2</span>) <span style="color: #89dceb;">==</span> <span style="color: #fab387;">0</span><span style="color: #cdd6f4;">:</span>
+                    <span style="color: #cdd6f4;">blocks</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">append</span>(<span style="color: #cdd6f4;">partial_block</span>)
+                    <span style="color: #cdd6f4;">partial_block</span> <span style="color: #89dceb;">=</span> <span style="color: #cba6f7;">None</span>
+
+                <span style="color: #6272a4;"># Self-attention sub-layer</span>
+                <span style="color: #cdd6f4;">attn_out</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">attn</span>(<span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">attn_norm</span>(<span style="color: #cdd6f4;">h</span>))
+                <span style="color: #cdd6f4;">partial_block</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">partial_block</span> <span style="color: #89dceb;">+</span> <span style="color: #cdd6f4;">attn_out</span> <span style="color: #cba6f7;">if</span> <span style="color: #cdd6f4;">partial_block</span> <span style="color: #cba6f7;">is not</span> <span style="color: #cba6f7;">None</span> <span style="color: #cba6f7;">else</span> <span style="color: #cdd6f4;">attn_out</span>
+
+                <span style="color: #6272a4;"># Apply AttnRes before MLP</span>
+                <span style="color: #cdd6f4;">h</span> <span style="color: #89dceb;">=</span> <span style="color: #89b4fa;">block_attn_res</span>(<span style="color: #cdd6f4;">blocks</span>, <span style="color: #cdd6f4;">partial_block</span>, <span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #cdd6f4;">mlp_res_proj</span>, <span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #cdd6f4;">mlp_res_norm</span>)
+
+                <span style="color: #6272a4;"># MLP sub-layer</span>
+                <span style="color: #cdd6f4;">mlp_out</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">mlp</span>(<span style="color: #cdd6f4;">self</span><span style="color: #89dceb;">.</span><span style="color: #89b4fa;">mlp_norm</span>(<span style="color: #cdd6f4;">h</span>))
+                <span style="color: #cdd6f4;">partial_block</span> <span style="color: #89dceb;">=</span> <span style="color: #cdd6f4;">partial_block</span> <span style="color: #89dceb;">+</span> <span style="color: #cdd6f4;">mlp_out</span>
+
+                <span style="color: #cba6f7;">return</span> <span style="color: #cdd6f4;">blocks</span>, <span style="color: #cdd6f4;">partial_block</span></code></pre>
+            </div>
+
+            <p style="font-size: 0.9em; color: #555;">
+                <strong>Figure 2:</strong> PyTorch-style pseudo code for Block Attention Residuals. 
+                <code>block_attn_res</code> computes softmax attention over block representations 
+                using a learned pseudo-query $\mathbf{w}_l$; <code>forward</code> is a single-layer 
+                pass that maintains <code>partial_block</code> ($\mathbf{b}_n^i$, intra-block 
+                residual) and <code>blocks</code> ($[\mathbf{b}_0, \ldots, \mathbf{b}_{n-1}]$, 
+                inter-block history).
+            </p>
+
+            <!-- Section 4 -->
+            <h2 id="infrastructure">4. Infrastructure Design</h2>
+
+            <p>
+                Block AttnRes introduces additional system challenges compared to standard residual 
+                connections. For large-scale model training, block representations must be propagated 
+                across pipeline stages. Two key challenges arise: repeated access to accumulated block 
+                representations increases inference latency, and long-context prefilling amplifies the 
+                memory cost of caching block representations. These are addressed via 
+                <strong>cross-stage caching</strong> in training and a <strong>two-phase computation 
+                strategy</strong> in inference.
+            </p>
+
+            <!-- Section 4.1 -->
+            <h3 id="training">4.1. Training</h3>
+
+            <p>
+                For small-scale training, AttnRes adds negligible overhead — activations are already 
+                saved for backpropagation. Under large-scale distributed training, pipeline parallelism 
+                is the primary challenge. Consider an interleaved pipeline schedule with $P$ physical 
+                stages and $V$ virtual stages per physical stage, where each physical stage produces 
+                on average $N_p$ block representations of dimension $d$ per token. With $C = PV$ 
+                total chunks, naïvely transmitting all accumulated blocks at every transition incurs:
+            </p>
+
+            $$\text{Comm}_{\text{naïve}} = \sum_{j=1}^{C-1} jN_p \cdot d = \frac{C(C-1)}{2} N_p d \tag{14}$$
+
+            <p>
+                <strong>Cross-stage caching</strong> eliminates this redundancy by caching blocks 
+                locally across virtual stages. Each transition conveys only the ${\sim}PN_p$ 
+                incremental blocks accumulated since the previous virtual stage, reducing total 
+                communication to:
+            </p>
+
+            $$\text{Comm}_{\text{cached}} = \underbrace{\frac{P(P-1)}{2} N_p d}_{\text{first virtual stage}} + \underbrace{(V-1)\, P^2 N_p d}_{\text{subsequent virtual stages}} \tag{15}$$
+
+            <p>
+                This reduces peak per-transition cost from $O(C)$ to $O(P)$ — a $V\times$ 
+                improvement — enabling full overlap with computation during steady-state 1F1B. 
+                The measured end-to-end training overhead under pipeline parallelism is 
+                <strong>less than 4%</strong>.
+            </p>
+
+            <!-- Section 4.2 -->
+            <h3 id="inference">4.2. Inference: Two-Phase Computation</h3>
+
+            <p>
+                During inference, block representations serve as a shared KV cache reused across 
+                layers. A naïve implementation requires $O(L \cdot N)$ memory accesses. Since 
+                pseudo-query vectors $\mathbf{w}_l$ are decoupled from the forward computation, 
+                all $S = L/N$ queries within a block can be batched into a single matrix 
+                multiplication — amortising memory access from $S$ reads to 1. The strategy 
+                proceeds in two phases:
+            </p>
+
+            <ul>
+                <li>
+                    <p>
+                        <strong>Phase 1 — Parallel inter-block attention:</strong> Batch all $S$ 
+                        queries against the cached block representations simultaneously, returning 
+                        outputs and softmax statistics (max and log-sum-exp). Reduces reads from 
+                        $S$ times to just once per block.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        <strong>Phase 2 — Sequential intra-block attention:</strong> Compute 
+                        attention sequentially using the evolving partial sum $\mathbf{b}_n^{i-1}$, 
+                        then merge with Phase 1 outputs via online softmax. Admits kernel fusion 
+                        with surrounding operations, further reducing I/O overhead.
+                    </p>
+                </li>
+            </ul>
+
+            <!-- Algorithm Box -->
+            <div style="border: 1.5px solid #ccc; border-radius: 8px; margin: 24px 0; overflow: hidden; font-family: 'Georgia', serif;">
+                <!-- Algorithm Header -->
+                <div style="background: #f5f5f5; border-bottom: 1.5px solid #ccc; padding: 10px 18px;">
+                    <strong>Algorithm 1:</strong> Two-phase computation for block $n$
+                </div>
+                <div style="padding: 16px 24px; font-size: 0.93em; line-height: 2;">
+                    <p style="margin: 0 0 8px 0;">
+                        <strong>Input:</strong> Pseudo queries $\{\mathbf{w}_l\}_{l \in \mathcal{B}_n}$, 
+                        block representations $\{\mathbf{b}_0, \ldots, \mathbf{b}_{n-1}\}$
+                    </p>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 8px 0;">
+
+                    <p style="color: #3478f6; margin: 6px 0;"><em>/* Phase 1: Parallel inter-block attention */</em></p>
+
+                    <p style="margin: 4px 0;">
+                        $1.\ \ \mathbf{Q} \leftarrow [\mathbf{w}_l]_{l \in \mathcal{B}_n}$
+                        <span style="float: right; color: #888;">$//\ [S, d]$</span>
+                    </p>
+                    <p style="margin: 4px 0;">
+                        $2.\ \ \mathbf{K}, \mathbf{V} \leftarrow [\mathbf{b}_0;\ \ldots\ ;\mathbf{b}_{n-1}]$
+                        <span style="float: right; color: #888;">$//\ [n, d]$</span>
+                    </p>
+                    <p style="margin: 4px 0;">
+                        $3.\ \ \{\mathbf{o}_l^{(1)}, m_l^{(1)}, \ell_l^{(1)}\}_{l \in \mathcal{B}_n} \leftarrow \text{AttnWithStats}(\mathbf{Q}, \mathbf{K}, \mathbf{V})$
+                        <span style="float: right; color: #888;">$//\ \text{Return LSE}$</span>
+                    </p>
+
+                    <br>
+                    <p style="color: #3478f6; margin: 6px 0;"><em>/* Phase 2: Sequential intra-block attention + Online softmax merge */</em></p>
+
+                    <p style="margin: 4px 0;">$4.\ \ i \leftarrow 0$</p>
+                    <p style="margin: 4px 0;">$5.\ \ \textbf{for}\ l \in \mathcal{B}_n\ \textbf{do}$</p>
+                    <p style="margin: 4px 0; padding-left: 24px;">
+                        $6.\ \ \textbf{if}\ i = 0\ \textbf{then}$
+                    </p>
+                    <p style="margin: 4px 0; padding-left: 48px;">
+                        $7.\ \ \mathbf{h}_l \leftarrow \mathbf{o}_l^{(1)} / \ell_l^{(1)}$
+                        <span style="float: right; color: #888;">$//\ \text{Inter-block only}$</span>
+                    </p>
+                    <p style="margin: 4px 0; padding-left: 24px;">$8.\ \ \textbf{else}$</p>
+                    <p style="margin: 4px 0; padding-left: 48px;">
+                        $9.\ \ \mathbf{o}_l^{(2)}, m_l^{(2)}, \ell_l^{(2)} \leftarrow \text{AttnWithStats}(\mathbf{w}_l, \mathbf{b}_n^i, \mathbf{b}_n^i)$
+                        <span style="float: right; color: #888;">$//\ \text{Intra-block}$</span>
+                    </p>
+                    <p style="margin: 4px 0; padding-left: 48px;">$10.\ \ m_l \leftarrow \max(m_l^{(1)}, m_l^{(2)})$</p>
+                    <p style="margin: 4px 0; padding-left: 48px;">
+                        $$\mathbf{h}_l \leftarrow \frac{e^{m_l^{(1)} - m_l}\,\mathbf{o}_l^{(1)} + e^{m_l^{(2)} - m_l}\,\mathbf{o}_l^{(2)}}{e^{m_l^{(1)} - m_l}\,\ell_l^{(1)} + e^{m_l^{(2)} - m_l}\,\ell_l^{(2)}}$$
+                        <span style="color: #888; font-size: 0.9em;">$//\ \text{Online softmax merge}$</span>
+                    </p>
+                    <p style="margin: 4px 0; padding-left: 24px;">
+                        $11.\ \ i \leftarrow i + 1$
+                    </p>
+                    <p style="margin: 4px 0; padding-left: 24px;">
+                        $12.\ \ \mathbf{b}_n^i \leftarrow \mathbf{b}_n^{i-1} + f_l(\mathbf{h}_l)$
+                        <span style="float: right; color: #888;">$//\ \text{Update partial sum};\ \mathbf{b}_n^0 := \mathbf{0}$</span>
+                    </p>
+                    <p style="margin: 4px 0;">$13.\ \ \textbf{return}\ \{\mathbf{h}_l\}_{l \in \mathcal{B}_n}$</p>
+                </div>
+            </div>
+
+            <!-- I/O Table -->
+            <h3 id="io-cost">4.3. Memory Access Cost Comparison</h3>
+
+            <p>
+                With the two-phase design, total per-layer memory access cost remains only 
+                $\left(\frac{N}{S} + 3\right)d$ reads and $2d$ writes — substantially lower than 
+                prior residual generalisations. The end-to-end inference latency overhead is 
+                <strong>less than 2%</strong> on typical workloads.
+            </p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.9em;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #333;">
+                        <th style="text-align: left; padding: 10px 12px;">Method</th>
+                        <th style="text-align: left; padding: 10px 12px;">Operation</th>
+                        <th style="text-align: center; padding: 10px 12px;">Read</th>
+                        <th style="text-align: center; padding: 10px 12px;">Write</th>
+                        <th style="text-align: center; padding: 10px 12px;">Symbolic I/O</th>
+                        <th style="text-align: center; padding: 10px 12px;">Typical</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">Standard Residuals</td>
+                        <td style="padding: 8px 12px;">Residual Merge</td>
+                        <td style="text-align: center; padding: 8px 12px;">$2d$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$d$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$3d$</td>
+                        <td style="text-align: center; padding: 8px 12px;">3</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;" rowspan="2">mHC ($m$ streams)</td>
+                        <td style="padding: 8px 12px;">Combined ops</td>
+                        <td style="text-align: center; padding: 8px 12px;">$md + m$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$m^2 + 2m$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$(8m+2)d + 2m^2+4m$</td>
+                        <td style="text-align: center; padding: 8px 12px;">34</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;">Residual Merge</td>
+                        <td style="text-align: center; padding: 8px 12px;">$2md$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$md$</td>
+                        <td style="text-align: center; padding: 8px 12px;">—</td>
+                        <td style="text-align: center; padding: 8px 12px;">—</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">AttnRes Full</td>
+                        <td style="padding: 8px 12px;">Phase 1 + Phase 2 (amortised)</td>
+                        <td style="text-align: center; padding: 8px 12px;">$(N-1)d$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$d$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$(S+N)d$</td>
+                        <td style="text-align: center; padding: 8px 12px;">24</td>
+                    </tr>
+                    <tr style="background: #eef4ff;">
+                        <td style="padding: 8px 12px;"><strong>AttnRes Block</strong></td>
+                        <td style="padding: 8px 12px;"><strong>Phase 1 + Phase 2 (amortised)</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;">$\frac{N}{S}d$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$d$</td>
+                        <td style="text-align: center; padding: 8px 12px;">$\left(\frac{N}{S}+5\right)d$</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>5.5</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="font-size: 0.9em; color: #555;">
+                <strong>Table 1:</strong> Memory access cost per token per layer. Typical values: 
+                $L{=}128$, $N{=}8$, $S{=}L/N{=}16$, $m{=}4$. Block AttnRes achieves the lowest 
+                I/O cost of any method, at just <strong>5.5d</strong> — only marginally above the 
+                3d baseline of standard residuals.
+            </p>
+
+            <!-- Section 5 -->
+            <h2 id="experiments">5. Experiments</h2>
+
+            <h3 id="architecture">5.1. Architecture Details</h3>
+
+            <p>
+                The model backbone is <strong>Kimi Linear</strong> 
+                <a href="#ref-zhang2025">[Zhang et al., 2025]</a>, a Mixture-of-Experts (MoE) 
+                Transformer following the DeepSeek-V3 <a href="#ref-deepseek">[DeepSeek-AI, 2025]</a> 
+                design. It interleaves <strong>Kimi Delta Attention (KDA)</strong> and 
+                <strong>Multi-Head Latent Attention (MLA)</strong> layers in a 3:1 ratio, each 
+                followed by a MoE feed-forward layer. The only modification is the addition of 
+                AttnRes to the residual connections — all other components remain unchanged. AttnRes 
+                introduces only one RMSNorm and one pseudo-query vector $\mathbf{w}_l \in \mathbb{R}^d$ 
+                per layer — a negligible fraction of total parameter count. Crucially, all 
+                pseudo-query vectors are <strong>initialised to zero</strong>, ensuring uniform 
+                attention weights at the start of training.
+            </p>
+
+            <h3 id="scaling-laws">5.2. Scaling Laws</h3>
+
+            <p>
+                Five model sizes are swept (194M to 528M activated parameters), each trained with 
+                three variants: a PreNorm baseline, Full AttnRes, and Block AttnRes ($N \approx 8$). 
+                Following standard practice, power-law curves are fitted as:
+            </p>
+
+            $$\mathcal{L} = A \times C^{-\alpha} \tag{16}$$
+
+            <p>where $\mathcal{L}$ is validation loss and $C$ is compute in PFLOP/s-days. Results:</p>
+
+            <ul>
+                <li><p><strong>Baseline:</strong> $\mathcal{L} = 1.891 \times C^{-0.057}$</p></li>
+                <li><p><strong>Block AttnRes:</strong> $\mathcal{L} = 1.870 \times C^{-0.058}$</p></li>
+                <li><p><strong>Full AttnRes:</strong> $\mathcal{L} = 1.865 \times C^{-0.057}$</p></li>
+            </ul>
+
+            <p>
+                All variants exhibit a similar scaling slope $\alpha$, but AttnRes consistently 
+                achieves a lower intercept $A$ — meaning it is uniformly better at <em>every</em> 
+                compute budget. The key headline: <strong>Block AttnRes matches the loss of the 
+                baseline trained with $1.25\times$ more compute.</strong> The gap between Full and 
+                Block AttnRes narrows with scale, shrinking to just 0.001 at the largest model size.
+            </p>
+
+            <!-- Scaling Table -->
+            <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.9em;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #333;">
+                        <th style="text-align: center; padding: 10px 12px;"># Act. Params</th>
+                        <th style="text-align: center; padding: 10px 12px;">Tokens</th>
+                        <th style="text-align: center; padding: 10px 12px;">$L_b$</th>
+                        <th style="text-align: center; padding: 10px 12px;">$d_\text{model}$</th>
+                        <th style="text-align: center; padding: 10px 12px;">Baseline</th>
+                        <th style="text-align: center; padding: 10px 12px;">Block AttnRes</th>
+                        <th style="text-align: center; padding: 10px 12px;">Full AttnRes</th>
+                        <th style="text-align: center; padding: 10px 12px;">mHC(-lite)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="text-align: center; padding: 8px 12px;">194M</td>
+                        <td style="text-align: center; padding: 8px 12px;">38.7B</td>
+                        <td style="text-align: center; padding: 8px 12px;">12</td>
+                        <td style="text-align: center; padding: 8px 12px;">896</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.931</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.909</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>1.899</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;">1.906</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="text-align: center; padding: 8px 12px;">241M</td>
+                        <td style="text-align: center; padding: 8px 12px;">45.4B</td>
+                        <td style="text-align: center; padding: 8px 12px;">13</td>
+                        <td style="text-align: center; padding: 8px 12px;">960</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.895</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.875</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>1.874</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>1.869</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="text-align: center; padding: 8px 12px;">296M</td>
+                        <td style="text-align: center; padding: 8px 12px;">62.1B</td>
+                        <td style="text-align: center; padding: 8px 12px;">14</td>
+                        <td style="text-align: center; padding: 8px 12px;">1024</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.829</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.809</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>1.804</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;">1.807</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="text-align: center; padding: 8px 12px;">436M</td>
+                        <td style="text-align: center; padding: 8px 12px;">87.9B</td>
+                        <td style="text-align: center; padding: 8px 12px;">16</td>
+                        <td style="text-align: center; padding: 8px 12px;">1168</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.766</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.746</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>1.737</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;">1.747</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="text-align: center; padding: 8px 12px;">528M</td>
+                        <td style="text-align: center; padding: 8px 12px;">119.0B</td>
+                        <td style="text-align: center; padding: 8px 12px;">17</td>
+                        <td style="text-align: center; padding: 8px 12px;">1264</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.719</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.693</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>1.692</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;">1.694</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="font-size: 0.9em; color: #555;">
+                <strong>Table 2:</strong> Baseline vs Block AttnRes ($N=8$) vs Full AttnRes vs 
+                mHC(-lite). Bold denotes best per-row result. $L_b = L/2$ denotes the number of 
+                Transformer blocks. All models trained with context length 8192.
+            </p>
+
+            <h3 id="main-results">5.3. Main Results</h3>
+
+            <p>
+                The largest model is the full <strong>Kimi Linear 48B</strong> configuration: 
+                27 Transformer blocks (54 layers) with 8 out of 256 routed experts plus 1 shared 
+                expert, yielding <strong>48B total / 3B activated parameters</strong>. Block AttnRes 
+                applies with 6 layers per block, producing 9 blocks plus the token embedding — 
+                10 depth-wise sources in total.
+            </p>
+
+            <p><strong>Training recipe:</strong></p>
+            <ul>
+                <li><p>Pre-trained on <strong>1.4T tokens</strong> following the Kimi Linear recipe</p></li>
+                <li><p>Optimiser: <strong>Muon</strong> <a href="#ref-liu2025">[Liu et al., 2025]</a> with WSD learning rate schedule</p></li>
+                <li><p>Global batch size: 8M tokens; context window: 4096 tokens</p></li>
+                <li><p>Stage 1: WSD pre-training on 1T tokens → Stage 2: mid-training on ~400B high-quality tokens → Stage 3: context extension to 32K tokens</p></li>
+            </ul>
+
+            <h3 id="training-dynamics">5.4. Training Dynamics</h3>
+
+            <p>Three diagnostic signals reveal <em>why</em> AttnRes works:</p>
+
+            <ul>
+                <li>
+                    <p>
+                        <strong>Validation loss:</strong> AttnRes achieves consistently lower loss 
+                        throughout training, with the gap widening during the decay phase and 
+                        resulting in a notably lower final loss.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        <strong>Output magnitude:</strong> The baseline suffers from the 
+                        <em>PreNorm dilution problem</em> — hidden-state magnitudes grow 
+                        monotonically with depth, compelling deeper layers to learn increasingly 
+                        large outputs. Block AttnRes confines this growth within each block, as 
+                        selective aggregation at block boundaries resets the accumulation, yielding 
+                        a <strong>bounded periodic pattern</strong>.
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        <strong>Gradient magnitude:</strong> The baseline's fixed unit weights 
+                        provide no mechanism for regulating gradient flow, causing 
+                        disproportionately large gradients in the earliest layers. AttnRes's 
+                        learnable softmax weights introduce competition for probability mass, 
+                        resulting in a substantially <strong>more uniform gradient distribution 
+                        across depth</strong>.
+                    </p>
+                </li>
+            </ul>
+
+            <h3 id="downstream">5.5. Downstream Benchmark Performance</h3>
+
+            <p>
+                Block AttnRes matches or outperforms the baseline on <em>every</em> evaluated 
+                benchmark. Gains are most pronounced on multi-step reasoning and code generation 
+                tasks, consistent with the hypothesis that improved depth-wise information flow 
+                benefits compositional tasks.
+            </p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.9em;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #333;">
+                        <th style="text-align: left; padding: 10px 12px;">Category</th>
+                        <th style="text-align: left; padding: 10px 12px;">Benchmark</th>
+                        <th style="text-align: center; padding: 10px 12px;">Baseline</th>
+                        <th style="text-align: center; padding: 10px 12px; color: #3478f6;">AttnRes</th>
+                        <th style="text-align: center; padding: 10px 12px; color: #28a745;">Δ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td rowspan="7" style="padding: 8px 12px; vertical-align: middle;"><em>General</em></td>
+                        <td style="padding: 8px 12px;">MMLU</td>
+                        <td style="text-align: center; padding: 8px 12px;">73.5</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>74.6</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+1.1</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;">MMLU-Pro</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>52.2</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>52.2</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #888;">0.0</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">GPQA-Diamond</td>
+                        <td style="text-align: center; padding: 8px 12px;">36.9</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>44.4</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;"><strong>+7.5</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;">BBH</td>
+                        <td style="text-align: center; padding: 8px 12px;">76.3</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>78.0</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+1.7</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">ARC-Challenge</td>
+                        <td style="text-align: center; padding: 8px 12px;">64.6</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>65.7</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+1.1</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;">HellaSwag</td>
+                        <td style="text-align: center; padding: 8px 12px;">83.2</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>83.4</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+0.2</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">TriviaQA</td>
+                        <td style="text-align: center; padding: 8px 12px;">69.9</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>71.8</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+1.9</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td rowspan="6" style="padding: 8px 12px; vertical-align: middle;"><em>Math &amp; Code</em></td>
+                        <td style="padding: 8px 12px;">GSM8K</td>
+                        <td style="text-align: center; padding: 8px 12px;">81.7</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>82.4</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+0.7</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">MGSM</td>
+                        <td style="text-align: center; padding: 8px 12px;">64.9</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>66.1</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+1.2</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;">Math</td>
+                        <td style="text-align: center; padding: 8px 12px;">53.5</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>57.1</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;"><strong>+3.6</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">CMath</td>
+                        <td style="text-align: center; padding: 8px 12px;">84.7</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>85.1</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+0.4</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;">HumanEval</td>
+                        <td style="text-align: center; padding: 8px 12px;">59.1</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>62.2</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;"><strong>+3.1</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">MBPP</td>
+                        <td style="text-align: center; padding: 8px 12px;">72.0</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>73.9</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+1.9</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td rowspan="2" style="padding: 8px 12px; vertical-align: middle;"><em>Chinese</em></td>
+                        <td style="padding: 8px 12px;">CMMLU</td>
+                        <td style="text-align: center; padding: 8px 12px;">82.0</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>82.9</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;">+0.9</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 12px;">C-Eval</td>
+                        <td style="text-align: center; padding: 8px 12px;">79.6</td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>82.5</strong></td>
+                        <td style="text-align: center; padding: 8px 12px; color: #28a745;"><strong>+2.9</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="font-size: 0.9em; color: #555;">
+                <strong>Table 3:</strong> Performance comparison of AttnRes with the baseline after 
+                the same pre-training recipe. AttnRes wins on every benchmark. The largest gains are 
+                on multi-step reasoning (GPQA-Diamond: +7.5) and math/code tasks.
+            </p>
+
+            <!-- Section 5.3 Ablations -->
+            <h3 id="ablations">5.6. Ablation Study</h3>
+
+            <p>
+                Ablations on the 16-layer model validate key design choices. All models share 
+                identical hyperparameters and compute budget.
+            </p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.9em;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #333;">
+                        <th style="text-align: left; padding: 10px 12px;">Variant</th>
+                        <th style="text-align: center; padding: 10px 12px;">Val. Loss</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">Baseline (PreNorm)</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.766</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;">DenseFormer (fixed scalars, all prior layers)</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.767</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;">mHC (dynamic matrix, $m$ streams)</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.747</td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid #333; background: #eef4ff;">
+                        <td style="padding: 8px 12px;"><strong>Full AttnRes</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>1.737</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px; padding-left: 28px;">↳ w/ input-dependent query</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.731</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px; padding-left: 28px;">↳ w/ input-independent mixing</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.749</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px; padding-left: 28px;">↳ w/ sigmoid (instead of softmax)</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.741</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px; padding-left: 28px;">↳ w/o RMSNorm on keys</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.743</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px;">SWA — Sliding Window ($W = 1 + 8$)</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.764</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 8px 12px;"><strong>Block AttnRes ($S=4$, $N=8$)</strong></td>
+                        <td style="text-align: center; padding: 8px 12px;"><strong>1.746</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #eee; background: #fafafa;">
+                        <td style="padding: 8px 12px; padding-left: 28px;">↳ w/ multihead ($H=16$)</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.752</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 12px; padding-left: 28px;">↳ w/o RMSNorm on keys</td>
+                        <td style="text-align: center; padding: 8px 12px;">1.750</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="font-size: 0.9em; color: #555;">
+                <strong>Table 4:</strong> Ablation study on 16-layer model. Key takeaways below.
+            </p>
+
+            <div style="border-left: 4px solid #e67e22; background: #fff5eb; padding: 15px; margin: 20px 0; border-radius: 0 6px 6px 0;">
+                <p style="margin: 0 0 8px 0;"><strong>Key takeaways from ablations:</strong></p>
+                <ul style="margin: 0;">
+                    <li><p><strong>DenseFormer gets zero gain (1.767).</strong> Cross-layer access alone is not enough — the weights must be <em>input-dependent</em>. This isolates content-dependent selection as the critical ingredient.</p></li>
+                    <li><p><strong>Softmax &gt; sigmoid.</strong> Replacing softmax with sigmoid degrades performance (1.741 vs 1.737). Softmax's competitive normalisation forces sharper, more decisive selection among depth sources.</p></li>
+                    <li><p><strong>RMSNorm on keys is essential.</strong> Removing it hurts both Full (1.743) and Block (1.750) AttnRes, as layers with large magnitude outputs dominate the softmax unfairly.</p></li>
+                    <li><p><strong>Multihead depth attention hurts (1.752).</strong> The optimal depth-wise mixture is largely uniform across channels — when a layer's output is relevant, it is relevant as a whole.</p></li>
+                    <li><p><strong>Sliding-window (SWA) is not enough (1.764).</strong> Selectively accessing <em>distant</em> layers matters more than attending to many <em>nearby</em> ones.</p></li>
+                </ul>
+            </div>
+
+            <!-- Section 6 -->
+            <h2 id="discussions">6. Discussions</h2>
+
+            <h3 id="seq-depth-duality">6.1. Sequence–Depth Duality</h3>
+
+            <p>
+                Residual connections propagate information over depth exactly as RNNs propagate 
+                over time. Test-Time Training (TTT) formalises the sequence side: each recurrent 
+                step is gradient descent on a self-supervised loss:
+            </p>
+
+            $$\mathbf{W}_t = \mathbf{W}_{t-1} - \eta\,\nabla\ell(\mathbf{W}_{t-1};\, \mathbf{x}_t) \tag{17}$$
+
+            <p>
+                When $f$ is linear, this reduces to vanilla linear attention 
+                $\mathbf{S}_t = \mathbf{S}_{t-1} + \mathbf{k}_t\mathbf{v}_t^\top$. The standard 
+                residual exhibits the same additive form along depth. Methods like Highway Networks, 
+                mHC, and DDL all refine the recurrent update while remaining <em>within</em> the 
+                recurrence paradigm. <strong>AttnRes goes a step further</strong> — replacing 
+                depth-wise recurrence with direct cross-layer attention, just as Transformers 
+                replaced temporal recurrence with self-attention.
+            </p>
+
+            <h3 id="structured-matrices">6.2. Residual Connections as Structured Matrices</h3>
+
+            <p>
+                Every residual variant can be expressed as $\mathbf{h}_l = \sum_{i=0}^{l-1} 
+                M_{i \to l}\,\mathbf{v}_i$ for a lower-triangular <em>depth mixing matrix</em> 
+                $\mathbf{M} \in \mathbb{R}^{L \times L}$. The key insight is that existing residual 
+                variants correspond to <em>depth-wise linear attention</em>, while AttnRes performs 
+                <em>depth-wise softmax attention</em>:
+            </p>
+
+            <ul>
+                <li><p><strong>Standard residual:</strong> $\mathbf{M}$ is all-ones lower-triangular — rank-1 semiseparable.</p></li>
+                <li><p><strong>Highway:</strong> $\mathbf{M}$ is 1-semiseparable with input-dependent gates — still linear attention.</p></li>
+                <li><p><strong>mHC:</strong> $\mathbf{M}$ is $m$-semiseparable — linear attention with matrix-valued states.</p></li>
+                <li><p><strong>Full AttnRes:</strong> $\mathbf{M}$ is <strong>dense, rank-$L$</strong> — depth-wise softmax attention, the most expressive.</p></li>
+            </ul>
+
+            <p>
+                The structured-matrix perspective also reveals <strong>depth-wise attention sinks</strong> 
+                in AttnRes — certain layers consistently attract high weight regardless of input, 
+                mirroring the sequence-wise attention sinks in standard Transformers.
+            </p>
+
+            <!-- Section 7 -->
+            <h2 id="conclusion">7. Conclusion</h2>
+
+            <div style="border: 2px solid #3478f6; background: #eef4ff; padding: 20px; margin: 24px 0; border-radius: 8px;">
+                <p style="margin: 0;">
+                    Inspired by the duality between sequence and depth, AttnRes replaces fixed, 
+                    uniform residual accumulation with <strong>learned, input-dependent, depth-wise 
+                    softmax attention</strong>. Its scalable variant Block AttnRes — using 
+                    $N \approx 8$ blocks — recovers most of the gains of Full AttnRes while 
+                    serving as a practical drop-in replacement with <strong>less than 4% training 
+                    overhead</strong> and <strong>less than 2% inference latency overhead</strong>. 
+                    Validated through scaling laws, ablations, and a 48B-parameter model pre-trained 
+                    on 1.4T tokens, AttnRes consistently improves over standard residual connections 
+                    across all evaluated tasks — equivalent to a <strong>$1.25\times$ compute 
+                    advantage</strong> for free.
+                </p>
+            </div>
+
+            <!-- References -->
+            <h2 id="references">References</h2>
+
+            <ol style="font-size: 0.9em; line-height: 1.8; color: #333;">
+                <li id="ref-he2016">He, K., Zhang, X., Ren, S., and Sun, J. <em>Deep Residual Learning for Image Recognition.</em> CVPR, 2016. <a href="https://arxiv.org/abs/1512.03385" target="_blank">arXiv:1512.03385</a></li>
+                <li id="ref-vaswani2017">Vaswani, A., et al. <em>Attention is All You Need.</em> NeurIPS, 2017. <a href="https://arxiv.org/abs/1706.03762" target="_blank">arXiv:1706.03762</a></li>
+                <li id="ref-xiong2020">Xiong, R., et al. <em>On Layer Normalization in the Transformer Architecture.</em> 2020. <a href="https://arxiv.org/abs/2002.04745" target="_blank">arXiv:2002.04745</a></li>
+                <li id="ref-kimi2026">Kimi Team. <em>Attention Residuals.</em> 2026. <a href="https://arxiv.org/abs/2603.15031" target="_blank">arXiv:2603.15031</a></li>
+                <li id="ref-gromov2025">Gromov, A., et al. <em>The Unreasonable Ineffectiveness of the Deeper Layers.</em> 2025. <a href="https://arxiv.org/abs/2403.17887" target="_blank">arXiv:2403.17887</a></li>
+                <li id="ref-srivastava2015">Srivastava, R. K., Greff, K., and Schmidhuber, J. <em>Highway Networks.</em> 2015. <a href="https://arxiv.org/abs/1505.00387" target="_blank">arXiv:1505.00387</a></li>
+                <li id="ref-pagliardini2024">Pagliardini, M., et al. <em>DenseFormer: Enhancing Information Flow in Transformers via Depth Weighted Averaging.</em> 2024. <a href="https://arxiv.org/abs/2402.02622" target="_blank">arXiv:2402.02622</a></li>
+                <li id="ref-xie2026">Xie, Z., et al. <em>mHC: Manifold-Constrained Hyper-Connections.</em> 2026. <a href="https://arxiv.org/abs/2512.24880" target="_blank">arXiv:2512.24880</a></li>
+                <li id="ref-liu2025">Liu, J., et al. <em>Muon is Scalable for LLM Training.</em> 2025. <a href="https://arxiv.org/abs/2502.16982" target="_blank">arXiv:2502.16982</a></li>
+                <li id="ref-zhang2025">Zhang, Y., et al. <em>Kimi Linear: An Expressive, Efficient Attention Architecture.</em> 2025. <a href="https://arxiv.org/abs/2510.26692" target="_blank">arXiv:2510.26692</a></li>
+                <li id="ref-deepseek">DeepSeek-AI. <em>DeepSeek-V3 Technical Report.</em> 2025. <a href="https://arxiv.org/abs/2412.19437" target="_blank">arXiv:2412.19437</a></li>
+                <li id="ref-bachlechner2020">Bachlechner, T., et al. <em>ReZero is All You Need: Fast Convergence at Large Depth.</em> 2020. <a href="https://arxiv.org/abs/2003.04887" target="_blank">arXiv:2003.04887</a></li>
+            </ol>
+
+            <!-- Citation Section -->
+            <h2 id="cite">Cite This Article</h2>
+
+            <p>If you found this article useful, please cite it as:</p>
+
+            <!-- BibTeX -->
+            <h4 style="margin-bottom: 8px;">BibTeX</h4>
+            <div style="border: 2px solid #3478f6; background: #eef4ff; padding: 20px; margin: 0 0 24px 0; border-radius: 8px;">
+                <pre style="margin: 0; font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace; font-size: 0.88em; line-height: 1.8; overflow-x: auto; background: transparent;">@article{vikram2026attnres,
+            author  = {Vikram},
+            title   = {Attention Residuals: Fixing a Decade-Old Bottleneck in Deep Networks},
+            year    = {2026},
+            month   = {March},
+            url     = {https://yourwebsite.com/attention-residuals},
+            note    = {Blog post}
+            }</pre>
+            </div>
+                
+            </article>
+        </main>
+    </div>
+</body>
+</html>
