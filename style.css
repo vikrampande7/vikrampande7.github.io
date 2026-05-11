@@ -61,8 +61,9 @@ table {
 /**************/
 html {
   font-size: 100%;
+  font-family: 'Ubuntu', serif;
 }
-font-family: 'Ubuntu', serif;
+
 @font-face {
 	font-family: 'Ubuntu';
 }
@@ -276,6 +277,8 @@ img {
 }
 .site-avatar img {
   border-radius: 5px;
+  image-orientation: none;
+  transform: rotate(0deg);
 }
 
 .site-info {

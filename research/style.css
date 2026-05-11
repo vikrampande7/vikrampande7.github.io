@@ -61,8 +61,9 @@ table {
 /**************/
 html {
   font-size: 100%;
+  font-family: 'Roboto Slab', serif;
 }
-font-family: 'Roboto Slab', serif;
+/* font-family: 'Roboto Slab', serif; */
 @font-face {
 	font-family: 'Roboto Slab';
 }
@@ -263,6 +264,8 @@ img {
 }
 .site-avatar img {
   border-radius: 5px;
+  image-orientation: none;
+  transform: rotate(0deg);
 }
 
 .site-info {
