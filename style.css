@@ -310,6 +310,32 @@ img {
   max-width: none;
 }
 
+.stats-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  justify-content: center;
+  align-items: flex-start;
+}
+.stats-card-link {
+  flex: 1;
+  min-width: 0;
+}
+.stats-card {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media screen and (max-width: 640px) {
+  .stats-row {
+    flex-direction: column;
+    align-items: center;
+  }
+  .stats-card-link {
+    width: 100%;
+  }
+}
+
 .date {
   font-style: italic;
   color: #666;

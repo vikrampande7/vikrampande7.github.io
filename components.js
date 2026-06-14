@@ -70,10 +70,16 @@ const FOOTER_HTML = `
 `;
 
 function updateLeetcodeTheme(isDark) {
-  const card = document.getElementById('leetcode-card');
-  if (!card) return;
-  const theme = isDark ? 'dark' : 'light';
-  card.src = `https://leetcard.jacoblin.cool/vikrampande7?theme=${theme}&font=Ubuntu&ext=heatmap`;
+  const leetcard = document.getElementById('leetcode-card');
+  if (leetcard) {
+    const theme = isDark ? 'dark' : 'light';
+    leetcard.src = `https://leetcard.jacoblin.cool/vikrampande7?theme=${theme}&font=Ubuntu&ext=heatmap`;
+  }
+  const ghcard = document.getElementById('github-card');
+  if (ghcard) {
+    const theme = isDark ? 'dark' : 'default';
+    ghcard.src = `https://github-readme-stats.vercel.app/api?username=vikrampande7&show_icons=true&theme=${theme}&hide_border=false&count_private=true`;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
