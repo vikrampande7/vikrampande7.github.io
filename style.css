@@ -1,4 +1,75 @@
 /***************/
+/* DARK MODE   */
+/***************/
+body.dark-mode {
+  background: #1a1a1a;
+  color: #d4d4d4;
+}
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: #e8e8e8;
+}
+body.dark-mode a {
+  color: #6ab0f5;
+}
+body.dark-mode a:hover,
+body.dark-mode a:active {
+  color: #90c8ff;
+}
+body.dark-mode .masthead {
+  border-bottom-color: #333;
+}
+body.dark-mode .site-name a {
+  color: #e8e8e8;
+}
+body.dark-mode nav a {
+  color: #d4d4d4;
+}
+body.dark-mode .wrapper-footer {
+  border-top-color: #333;
+  background-color: #1a1a1a;
+}
+body.dark-mode .posts > .post {
+  border-bottom-color: #333;
+}
+body.dark-mode .profile-pic {
+  border-color: #333;
+}
+body.dark-mode .highlight {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+
+/* Toggle button */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 12px;
+  padding: 0 2px;
+  vertical-align: middle;
+  color: #333;
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  top: -1px;
+}
+body.dark-mode .theme-toggle {
+  color: #d4d4d4;
+}
+@media screen and (max-width: 640px) {
+  .theme-toggle {
+    margin: 0 10px;
+  }
+}
+
+/***************/
 /* MEYER RESET */
 /***************/
 html, body, div, span, applet, object, iframe,

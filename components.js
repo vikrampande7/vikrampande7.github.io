@@ -16,7 +16,8 @@ const HEADER_HTML = `
         <a href="/research" target="_self">Projects</a>
         <a href="/blog" target="_self">Blog</a>
         <a href="${CV_PATH}">CV</a>
-        <a href="/misc/">Misc</a>
+        <a href="/misc/" target="_self">Misc</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark/light mode">&#9728;</button>
       </nav>
     </header>
   </div>
@@ -74,4 +75,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const footerEl = document.getElementById('site-footer');
   if (footerEl) footerEl.innerHTML = FOOTER_HTML;
+
+  // Restore saved theme before painting to avoid flash
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    // Set correct icon for current state
+    btn.textContent = document.body.classList.contains('dark-mode') ? '☀' : '☾';
+
+    btn.addEventListener('click', function () {
+      const isDark = document.body.classList.toggle('dark-mode');
+      btn.textContent = isDark ? '☀' : '☾';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+  }
 });
