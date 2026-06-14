@@ -69,6 +69,13 @@ const FOOTER_HTML = `
 </div>
 `;
 
+function updateLeetcodeTheme(isDark) {
+  const card = document.getElementById('leetcode-card');
+  if (!card) return;
+  const theme = isDark ? 'dark' : 'light';
+  card.src = `https://leetcard.jacoblin.cool/vikrampande7?theme=${theme}&font=Ubuntu&ext=heatmap`;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   const headerEl = document.getElementById('site-header');
   if (headerEl) headerEl.innerHTML = HEADER_HTML;
@@ -77,8 +84,10 @@ document.addEventListener('DOMContentLoaded', function () {
   if (footerEl) footerEl.innerHTML = FOOTER_HTML;
 
   // Restore saved theme before painting to avoid flash
-  if (localStorage.getItem('theme') === 'dark') {
+  const savedDark = localStorage.getItem('theme') === 'dark';
+  if (savedDark) {
     document.body.classList.add('dark-mode');
+    updateLeetcodeTheme(true);
   }
 
   const btn = document.getElementById('theme-toggle');
@@ -90,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const isDark = document.body.classList.toggle('dark-mode');
       btn.textContent = isDark ? '☀' : '☾';
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateLeetcodeTheme(isDark);
     });
   }
 });
