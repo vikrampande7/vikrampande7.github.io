@@ -78,7 +78,7 @@ function updateLeetcodeTheme(isDark) {
   const ghcard = document.getElementById('github-card');
   if (ghcard) {
     const theme = isDark ? 'dark' : 'default';
-    ghcard.src = `https://github-readme-stats.vercel.app/api?username=vikrampande7&show_icons=true&theme=${theme}&hide_border=false&count_private=true`;
+    ghcard.src = `https://github-readme-stats.vercel.app/api?username=vikrampande7&show_icons=true&theme=${theme}&hide_border=false`;
   }
 }
 
